@@ -1,0 +1,4 @@
+streamlit
+requests
+pandas                # ← if you load JSON → DataFrame, display tables, etc.
+python-dotenv         # ← optional: if you ever want to load secrets from .env locally (not needed on Cloud)
