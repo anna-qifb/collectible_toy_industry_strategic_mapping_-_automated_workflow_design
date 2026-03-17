@@ -1,6 +1,3 @@
-# requirements.txt (minimal)
 streamlit
 plotly
 requests
-pandas   # only used for small dataframe → optional but kept
-Bash
