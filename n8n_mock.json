@@ -1,0 +1,320 @@
+{
+  "name": "Collectible Toy Industry Report - Full Mock 2025",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "99cb653f-7ad1-4b18-8015-6ada63d641bf",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-15456, 1856]
+    },
+
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Research and write Section 1: Market Size & Growth using most current data.",
+        "options": {
+          "systemMessage": "Senior strategy consultant. Write 400-600 words. Use 2024+ data for current metrics. Every number + inline citation. Focus: US$21.4-21.8B in 2024 → US$43.5-44.3B by 2031, CAGR 10.8%, North America ~47%, kidult fastest growing driver, top 3 >45% share."
+        }
+      },
+      "name": "P01 Market Size & Growth",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-14800, 1800]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this output: {{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "QA analyst. Return ONLY valid JSON with keys: contradiction_check, completeness_checklist, accuracy_checklist, word_count_checklist (400-600), actionability_checklist. overall_pass true ONLY if all true. If false: lowest_dimension + lowest_reason."
+        }
+      },
+      "name": "P01 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-14400, 1750]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [{
+            "leftValue": "={{ $json.output }}",
+            "rightValue": "\"overall_pass\": true",
+            "operator": { "type": "string", "operation": "contains" }
+          }]
+        }
+      },
+      "name": "P01 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-14000, 1700]
+    },
+    {
+      "parameters": {
+        "assignments": [{
+          "name": "p01_final_text",
+          "value": "={{ $('P01 Reviser').isExecuted ? $('P01 Reviser').last().json.output : $('P01 Market Size & Growth').last().json.output }}",
+          "type": "string"
+        }]
+      },
+      "name": "P01 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-13600, 1600]
+    },
+    {
+      "parameters": {
+        "assignments": [{
+          "name": "retry_p01",
+          "value": "={{ $runIndex + 1 }}",
+          "type": "number"
+        }]
+      },
+      "name": "P01 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-14300, 1950]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [{
+            "leftValue": "={{ $json.retry_p01 }}",
+            "rightValue": 3,
+            "operator": { "type": "number", "operation": "lte" }
+          }]
+        }
+      },
+      "name": "P01 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-13900, 1950]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Feedback: {{ $('P01 Scorer').item.json.output }} Original: {{ $('P01 Market Size & Growth').item.json.output }} Last revision: {{ $('P01 Newest Output').item.json.output_revised || '' }} Rewrite fixing only the failing part.",
+        "options": {
+          "systemMessage": "Fix ONLY the flagged weakness. Keep structure and headers. Max 600 words."
+        }
+      },
+      "name": "P01 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-13500, 1900]
+    },
+
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research and write Section 2: Market Segmentation...\nReference: {{ $('P01 Save Text').last().json.p01_final_text }}",
+        "options": {
+          "systemMessage": "Senior strategy consultant. 400-700 words. Segment by demographic (kidult focus), price point, product category. Every data point + citation. Highlight emotional value & unboxing culture."
+        }
+      },
+      "id": "d13f2c8d-9154-4431-bfc1-023ce3f7b87b",
+      "name": "P02 Market Segmentation",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-13584, 1792]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this: {{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst... Return ONLY valid JSON. ... (exact same as your original P02 Scorer message)"
+        }
+      },
+      "id": "b9c8be7a-7a3c-4b22-92aa-6331b4e917f3",
+      "name": "P02 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-13056, 1696]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [{
+            "leftValue": "={{ $json.output }}",
+            "rightValue": "\"overall_pass\": true",
+            "operator": { "type": "string", "operation": "contains" }
+          }]
+        }
+      },
+      "id": "87af0e03-3829-4d61-93ea-f44573dae6b1",
+      "name": "P02 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-12784, 1680]
+    },
+    {
+      "parameters": {
+        "assignments": [{
+          "name": "p02_final_text",
+          "value": "={{ $('P02 Reviser').isExecuted ? $('P02 Reviser').last().json.output : $('P02 Market Segmentation').last().json.output }}",
+          "type": "string"
+        }]
+      },
+      "id": "25f2ae9c-df61-4fa4-967d-e55fbd267efc",
+      "name": "P02 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-12416, 1536]
+    },
+    {
+      "parameters": {
+        "assignments": [{
+          "name": "retry_p02",
+          "value": "={{ $runIndex + 1 }}",
+          "type": "number"
+        }]
+      },
+      "id": "5bbcc609-4081-4641-be4b-54e7a1737867",
+      "name": "P02 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-13088, 1904]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [{
+            "leftValue": "={{ $json.retry_p02 }}",
+            "rightValue": 3,
+            "operator": { "type": "number", "operation": "lte" }
+          }]
+        }
+      },
+      "id": "a392ed0c-4f77-48ef-8f0b-50c01bc87aba",
+      "name": "P02 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-12928, 1904]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P02 Scorer').item.json.output }}, from the original draft {{ $('P02 Market Segmentation').item.json.output }}. Last revised: {{ $('P02 Newest Output').item.json.output_revised || \"\" }} If empty, revise original. Rewrite based on feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant... Fix ONLY the identified weakness... (exact same as your original P02 Reviser message)"
+        }
+      },
+      "id": "fbfd5da2-5f41-4713-9153-94fb1fa7c78d",
+      "name": "P02 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-12784, 1888]
+    },
+
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research and write Section 3: Competitive Landscape...\nReference Sections 1+2: {{ $('P01 Save Text').last().json.p01_final_text }} {{ $('P02 Save Text').last().json.p02_final_text }}",
+        "options": {
+          "systemMessage": "Write 400-600 words. Markdown table for key players. Profile Pop Mart (Labubu case), Funko, LEGO, Hasbro (WotC/Pulse only), Bandai, Hot Toys + 1 emerging challenger. Never invent revenue."
+        }
+      },
+      "name": "P03 Competitive Landscape",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-12256, 1744]
+    },
+    // P03 Scorer, IF Pass, Save Text, Increment Counter, Check Limit, Reviser nodes follow same pattern as P02
+    // (copy the P02 block and change only the section number/name/position)
+
+    // ───────────────────────────────────────────────────────────────────────
+    // Continue pattern for P04 to P12 with decreasing x-position (~ -800 to -1200 each section)
+    // Example P04 stub:
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write Section 4: Key Trends & Disruptions...\nReference previous sections...",
+        "options": {
+          "systemMessage": "400-600 words. Cover kidult, AI integration, premiumization, DTC/social commerce, glocalization, IP lifecycle velocity. Include impact classification and CEO implication."
+        }
+      },
+      "name": "P04 Key Trends & Disruptions",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-11000, 1700]
+    },
+    // ... add full loop (Scorer → IF → Save → Increment → Check → Reviser) for each
+
+    // P05 – Executive Synthesis (final synthesis step)
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Compile Executive Synthesis using:\nSection 1: {{ $('P01 Save Text').last().json.p01_final_text }}\nSection 2: {{ $('P02 Save Text').last().json.p02_final_text }}\n... up to Section 4",
+        "options": {
+          "systemMessage": "Write Short & Sharp Update (4 bullets) + 1000-1200 word synthesis. Emphasize Product→Platform, Static→Dynamic (AI), Global→Glocal shifts. Use kidult 30%, emotional value 99.9%, DTC 25%, AI 70% CAGR China..."
+        }
+      },
+      "name": "P05 Executive Synthesis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [-9500, 1650]
+    },
+
+    // P06 Porter's 5+2 Forces, P07 Profit Pools, P08 KSF, P09 Synthesis, P10 Gap Analysis, P11 Strategic Options (GE Matrix), P12 Strategy Statement
+    // follow same writer + scorer + if + save + retry loop pattern
+
+    // Example final save node from your fragment
+    {
+      "parameters": {
+        "assignments": [{
+          "name": "p05_mock_output",
+          "value": "## Short & Sharp Update\n1. Market ... (paste your example text here if desired)",
+          "type": "string"
+        }]
+      },
+      "id": "4fb9d187-4a8d-4171-8267-2daedf23d0fb",
+      "name": "P05 Save Text1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-15664, 2608]
+    }
+  ],
+
+  "connections": {
+    "Start": {
+      "main": [[{ "node": "P01 Market Size & Growth", "type": "main", "index": 0 }]]
+    },
+    "P01 Market Size & Growth": {
+      "main": [[{ "node": "P01 Scorer", "type": "main", "index": 0 }]]
+    },
+    "P01 Scorer": {
+      "main": [[{ "node": "P01 IF Pass", "type": "main", "index": 0 }]]
+    },
+    "P01 IF Pass": {
+      "main": [
+        [{ "node": "P01 Save Text", "type": "main", "index": 0 }],
+        [{ "node": "P01 Increment Counter", "type": "main", "index": 0 }]
+      ]
+    },
+    "P01 Increment Counter": {
+      "main": [[{ "node": "P01 Check Limit", "type": "main", "index": 0 }]]
+    },
+    "P01 Check Limit": {
+      "main": [[{ "node": "P01 Reviser", "type": "main", "index": 0 }]]
+    },
+    "P01 Reviser": {
+      "main": [[{ "node": "P01 Market Size & Growth", "type": "main", "index": 0 }]]
+    },
+    "P01 Save Text": {
+      "main": [[{ "node": "P02 Market Segmentation", "type": "main", "index": 0 }]]
+    }
+    // Extend similarly: P02 Save Text → P03 writer, P03 Save Text → P04 writer, ..., P11 Save Text → P12 writer
+  },
+
+  "pinData": {
+    "Start": [{}]
+  },
+
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0226d54fd36042cefb08a7f7bcf62eab8366e0f83aa5544ec69e76cc5e679426"
+  }
+}

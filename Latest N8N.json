@@ -1,0 +1,627 @@
+{
+  "name": "Latest N8N",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bf525c9a-4d06-4c6b-bdcf-c4c8bf3c3044",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -3120,
+        192
+      ],
+      "id": "dcf63e19-9c70-4afe-bd54-95f738cd2230",
+      "name": "Webhook",
+      "webhookId": "bf525c9a-4d06-4c6b-bdcf-c4c8bf3c3044"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "Noam test text"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8396d04e-99d1-41d2-82a9-48a62c9db5cc",
+      "name": "Step 1 - Toy Research (This Year)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -2848,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "Market research suggests toys are selling fast last year"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f41cdad2-9f30-4687-8636-2c67bdc33a48",
+      "name": "Step 2 - Toy Research (Last Year)1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1952,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "this is the final step"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d21d30ae-ab08-48d5-8a01-70474cb562c7",
+      "name": "Step 3 - Final Step1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -976,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "report",
+              "value": "this is the report generated through strategic automation engine"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3ba0bfbc-f40b-467c-bbba-64f1c4dde015",
+      "name": "Step 4 - Generate Report1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "61af7f0c-3e6e-48a3-a0f4-5d8bb90a8e70",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2240,
+        192
+      ],
+      "id": "ce28654a-5952-4de0-bf3f-73814052c94e",
+      "name": "Checking Approval1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6d4a9782-963a-442a-9c41-9ad9fbad7eaf",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1248,
+        176
+      ],
+      "id": "cbfa4499-6e3a-4fa7-8d62-bc6d98ba4bf5",
+      "name": "Checking Approval2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4218d573-1d7c-4311-889a-c808eb760b5e",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -400,
+        160
+      ],
+      "id": "d3e0ff0f-5c67-41e6-bb1f-97f5fcc08fce",
+      "name": "Checking Approval3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2200fvk7-5173.usw2.devtunnels.ms/api/pending-approvals-2",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "callback_url",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.project_id }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -1728,
+        176
+      ],
+      "id": "06ad455a-a051-4009-88b7-f0eff6a0ae92",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2200fvk7-5173.usw2.devtunnels.ms/api/pending-approvals-1",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=message",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "callback_url",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2640,
+        192
+      ],
+      "id": "fbc9bcbc-6a92-44d9-a511-4e7ef2cefab9",
+      "name": "HTTP Request1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2200fvk7-5173.usw2.devtunnels.ms/api/pending-approvals-3",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "callback_url",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "=project_id",
+              "value": "={{ $json.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -784,
+        160
+      ],
+      "id": "2c800954-c320-4807-a344-5461a2a77292",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "is_approved",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -1488,
+        176
+      ],
+      "id": "3d6962ca-806d-4fa1-af27-5f2fbce3faae",
+      "name": "Wait2",
+      "webhookId": "086a5af5-9b80-4d28-bbf7-3839a864d369"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "is_approved",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -2448,
+        192
+      ],
+      "id": "1d25cbe4-41fc-4c18-825b-93d40f759676",
+      "name": "Wait1",
+      "webhookId": "8785a85c-16f6-4151-9745-0ac5d6b34252"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "is_approved",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -592,
+        160
+      ],
+      "id": "223b3e74-e156-4f47-a840-6d264e4c713a",
+      "name": "Wait3",
+      "webhookId": "cf991238-91ec-4bf8-9331-09588ec4a1fa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2200fvk7-5173.usw2.devtunnels.ms/api/final-report",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "report",
+              "value": "={{ $json.report }}"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        32,
+        144
+      ],
+      "id": "933810ff-4e56-4221-b911-579d9f574e63",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Step 1 - Toy Research (This Year)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 1 - Toy Research (This Year)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 2 - Toy Research (Last Year)1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 3 - Final Step1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking Approval1": {
+      "main": [
+        [
+          {
+            "node": "Step 2 - Toy Research (Last Year)1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Step 1 - Toy Research (This Year)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking Approval2": {
+      "main": [
+        [
+          {
+            "node": "Step 3 - Final Step1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Step 2 - Toy Research (Last Year)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking Approval3": {
+      "main": [
+        [
+          {
+            "node": "Step 4 - Generate Report1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Step 3 - Final Step1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Checking Approval2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Checking Approval1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Checking Approval3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 4 - Generate Report1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "03ca72e2-bf0c-438d-bb92-2d39410854c3",
+  "meta": {
+    "instanceId": "fb6ab23a9b136046335d0180205e269a1ab78a508383dfd1321b4ac997adb0f5"
+  },
+  "id": "0EuYhGr5cwD42W5o",
+  "tags": []
+}
