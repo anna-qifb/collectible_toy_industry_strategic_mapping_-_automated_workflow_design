@@ -25,8 +25,8 @@ with st.sidebar:
 
     st.divider()
     st.header("Strategy Data Source")
-    uploaded_json = st.file_uploader("Upload strategy-data.json", type=["json"],
-                                    help="Upload JSON containing market data, forces, strategy statement")
+    uploaded_json = st.file_uploader("Upload json file", type=["json"],
+                                    help="Upload JSON containing mock data such as market data, forces, strategy statement")
 
     strategy_data = {}
     if uploaded_json is not None:
