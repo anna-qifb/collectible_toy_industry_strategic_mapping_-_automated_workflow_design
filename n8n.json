@@ -1,0 +1,5902 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "99cb653f-7ad1-4b18-8015-6ada63d641bf",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -15456,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research and write Section 2: Market Segmentation for the global collectible toy industry. Use the most current data available.\n\nReference context from previous section:\nSection 1:\n{{ $('P01 Save Text').last().json.p01_final_text }}",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant specialising in the collectible toy sector. Write Section 2 of an Industry Context Document for a CEO.\n\n<rules>\n- No pre-2024 data allowed for current market size or current metrics, but pre-2024 data MAY be used to illustrate historical trends.\n\n- Every single data point (USD value, percentage, share) MUST be immediately followed by an inline citation in brackets, e.g., (Source: Grand View Research, 2024).\n- Word count strictly between 400 and 700 words. Do not pad with generic filler to reach the minimum.\n- Base your analysis on current data and the context provided.\n- Segment by demographic, price point, and product category.\n</rules>\n\n<output_format>\n### Section 2: Market Segmentation\n**2.1 Demographic Breakdown**\n**2.2 Price Point Segmentation**\n**2.3 Product Categories**\n</output_format>"
+        }
+      },
+      "id": "d13f2c8d-9154-4431-bfc1-023ce3f7b87b",
+      "name": "P02 Market Segmentation",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -13584,
+        1792
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst reviewing Section 2 of a CEO report on the collectible toy industry.\nScore the output exactly as instructed below. Return ONLY valid JSON.\n\n<dimensions>\n1. contradiction_check (Binary): TRUE ONLY IF there are no obvious or major mathematical contradictions with Section 1 (e.g., segment sizes logically fit within the global market size).\n2. completeness_checklist (Binary): TRUE ONLY IF it covers at least two of the following breakdowns: demographic, price point, or product category.\n3. accuracy_checklist (Binary): TRUE ONLY IF the key data points and percentages include inline source citations. Pre-2024 data is allowed ONLY if it is used to demonstrate a historical trend; otherwise, current metrics must be 2024 or newer.\n4. word_count_checklist (Binary): TRUE ONLY IF the word count is reasonably close to the 400-600 word range.\n5. actionability_checklist (Binary): TRUE ONLY IF the text highlights at least one clear area of strategic opportunity or growth for a new entrant.\n</dimensions>\n\n<pass_rule>\nSet overall_pass to true ONLY IF: contradiction_check is TRUE AND completeness_checklist is TRUE AND accuracy_checklist is TRUE AND word_count_checklist is TRUE AND actionability_checklist is TRUE.\nIf false, set lowest_dimension to the failing dimension name, and lowest_reason to why it failed.\n</pass_rule>\n\n<output>\nReturn ONLY:\n{\"contradiction_check\": true, \"completeness_checklist\": true, \"accuracy_checklist\": true, \"word_count_checklist\": true, \"actionability_checklist\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}\n</output>\n"
+        }
+      },
+      "id": "b9c8be7a-7a3c-4b22-92aa-6331b4e917f3",
+      "name": "P02 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -13056,
+        1696
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c8763514-8ff1-4b74-bc59-f10da6f5821e",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "87af0e03-3829-4d61-93ea-f44573dae6b1",
+      "name": "P02 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -12784,
+        1680
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1d1ce9df-5427-43cb-9aaa-43c9cb11cae1",
+              "name": "p02_final_text",
+              "value": "={{ $('P02 Reviser').isExecuted ? $('P02 Reviser').last().json.output : $('P02 Market Segmentation').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "25f2ae9c-df61-4fa4-967d-e55fbd267efc",
+      "name": "P02 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -12416,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2b3ebc24-3453-4dd1-b4d2-c7a4aa4dafc0",
+              "name": "retry_p02",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5bbcc609-4081-4641-be4b-54e7a1737867",
+      "name": "P02 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -13088,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3ff9e029-94c2-4b4f-b778-19f91c914d57",
+              "leftValue": "={{ $json.retry_p02 }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "a392ed0c-4f77-48ef-8f0b-50c01bc87aba",
+      "name": "P02 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -12928,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P02 Scorer').item.json.output }}, from the original draft {{ $('P02 Market Segmentation').item.json.output }}.\n\nThis is the last revised iteratoin:\n{{ $('P02 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged one weakness.\n\n<task>\nRewrite the section fixing ONLY the identified weakness. Do not change content that scored well.\n</task>\n\n<rules>\n- Fix the flagged dimension only.\n- Keep all required subsection headers intact.\n- If accuracy was flagged: add [ESTIMATED] to uncertain figures and explain each one.\n- Maximum 400 words.\n- Keep headers 2.1-2.4. Max 400 words.\n</rules>"
+        }
+      },
+      "id": "fbfd5da2-5f41-4713-9153-94fb1fa7c78d",
+      "name": "P02 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -12784,
+        1888
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research and write Section 3: Competitive Landscape for the global collectible toy industry. Profile the 6 named companies and identify one emerging challenger.\n\nReference context from previous sections:\nSection 1:\n{{ $('P01 Save Text').last().json.p01_final_text }}\nSection 1:\n{{ $('P01 Save Text').last().json.p01_final_text }}\nSection 2:\n{{ $('P02 Save Text').last().json.p02_final_text }}",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant specialising in the collectible toy sector. Write Section 3 of an Industry Context Document for a CEO.\n\n<rules>\n- No pre-2024 data allowed for current market size or current metrics, but pre-2024 data MAY be used to illustrate historical trends.\n- Every single data point (USD value, percentage, share) MUST be immediately followed by an inline citation in brackets, e.g., (Source: Grand View Research, 2024).\n- Word count strictly between 400 and 600 words. Do not pad with generic filler to reach the minimum.\n- Never invent revenue figures. Use [ESTIMATED] if unknown. Always state the year for every revenue figure.\n- For Hasbro: report only Wizards of the Coast and Hasbro Pulse segments — not total company revenue.\n</rules>\n\n<output_format>\n### Section 3: Competitive Landscape\n**3.1 Key Player Profiles**\n| Company | HQ | Revenue (Year) | Key IP / Products | Primary Channel | Geographic Focus |\n|---------|-----|----------------|-------------------|-----------------|-----------------|\n**3.2 How Players Differentiate**\n**3.3 Emerging Challenger**\n</output_format>"
+        }
+      },
+      "id": "0dfe453d-46c2-4a30-9a17-5c8d3ec00ae4",
+      "name": "P03 Competitive Landscape",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -12256,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst reviewing Section 3 of a CEO report on the collectible toy industry.\nScore the output exactly as instructed below. Return ONLY valid JSON.\n\n<dimensions>\n1. contradiction_check (Binary): TRUE ONLY IF there are no obvious or major contradictions with the market size and segments established in Sections 1 and 2.\n2. completeness_checklist (Binary): TRUE ONLY IF it profiles the majority of the requested companies (Pop Mart, Funko, Hasbro, Bandai, Hot Toys, MGA) and mentions an emerging challenger.\n3. accuracy_checklist (Binary): TRUE ONLY IF key revenue figures have a stated year and a source citation. Pre-2024 data is allowed ONLY to show a historical trend. Hasbro's revenue should focus primarily on its WotC/Pulse collector divisions rather than general toys.\n4. word_count_checklist (Binary): TRUE ONLY IF the word count is reasonably close to the 400-600 word range.\n5. actionability_checklist (Binary): TRUE ONLY IF the text establishes clear differentiation or competitive positioning between the major players.\n</dimensions>\n\n<pass_rule>\nSet overall_pass to true ONLY IF: contradiction_check is TRUE AND completeness_checklist is TRUE AND accuracy_checklist is TRUE AND word_count_checklist is TRUE AND actionability_checklist is TRUE.\nIf false, set lowest_dimension to the failing dimension name, and lowest_reason to why it failed.\n</pass_rule>\n\n<output>\nReturn ONLY:\n{\"contradiction_check\": true, \"completeness_checklist\": true, \"accuracy_checklist\": true, \"word_count_checklist\": true, \"actionability_checklist\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}\n</output>\n"
+        }
+      },
+      "id": "a1ee185e-61fd-4ca4-b221-aa03ecf4b21b",
+      "name": "P03 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -11664,
+        1616
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2cff9474-8323-4495-bf3e-5df96985618f",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d4329ef9-ed88-4b0b-8219-ea32a24cba9c",
+      "name": "P03 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -11312,
+        1616
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3101d690-fa5b-4c67-b45a-4b3da0f811e3",
+              "name": "p03_final_text",
+              "value": "={{ $('P03 Reviser').isExecuted ? $('P03 Reviser').last().json.output : $('P03 Competitive Landscape').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "29de6822-f4d8-470b-9d72-f4c1c5065bdf",
+      "name": "P03 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10992,
+        1488
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f320386a-fe63-4c99-9d4e-fddbd5c311d1",
+              "name": "retry_p03",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8164491f-c25e-4396-b918-f2d82c0eeba6",
+      "name": "P03 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -11760,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "36868b08-23d0-4f7d-bcf3-01c36e070dd1",
+              "leftValue": "={{ $json.retry_p03 }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "868aa0b1-2f9a-4f55-8ab5-e60786bd7aba",
+      "name": "P03 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -11472,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P03 Scorer').item.json.output }}, from the original draft {{ $('P03 Competitive Landscape').item.json.output }}.\n\nThis is the last revised iteratoin:\n{{ $('P03 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged one weakness.\n\n<task>\nRewrite the section fixing ONLY the identified weakness. Do not change content that scored well.\n</task>\n\n<rules>\n- Fix the flagged dimension only.\n- Keep all required subsection headers intact.\n- If accuracy was flagged: add [ESTIMATED] to uncertain figures and explain each one.\n- Maximum 500 words.\n- All 6 companies must remain. Max 500 words.\n</rules>"
+        }
+      },
+      "id": "b3fac2af-d81e-41ad-8a81-6924b0bd007a",
+      "name": "P03 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -11264,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research and write Section 4: Key Trends & Disruptions for the global collectible toy industry. Cover all 6 named trends with classification and CEO implication for each.\n\nReference context from previous sections:\nSection 1:\n{{ $('P01 Save Text').last().json.p01_final_text }}\n\nSection 2:\n{{ $('P02 Save Text').last().json.p02_final_text }}\n\nSection 3:\n{{ $('P03 Save Text').last().json.p03_final_text }}",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant specialising in the collectible toy sector. Write Section 4 of an Industry Context Document for a CEO.\n\n<rules>\n- No pre-2024 data allowed for current market size or current metrics, but pre-2024 data MAY be used to illustrate historical trends.\n- Every single data point (USD value, percentage, share) MUST be immediately followed by an inline citation in brackets, e.g., (Source: Grand View Research, 2024).\n- Word count strictly between 400 and 600 words. Do not pad with generic filler to reach the minimum.\n- Cover all 6 named trends with classification and CEO implication for each.\n</rules>\n\n<output_format>\n### Section 4: Key Trends & Disruptions\n**4.1 Trend Analysis**\n**4.2 CEO Implications**\n</output_format>"
+        }
+      },
+      "id": "3b81c295-c754-4607-8678-613b81f4e344",
+      "name": "P04 Key Trends & Disruptions",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -10736,
+        1728
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst reviewing Section 4 of a CEO report on the collectible toy industry.\nScore the output exactly as instructed below. Return ONLY valid JSON.\n\n<dimensions>\n1. contradiction_check (Binary): TRUE ONLY IF the trends generally align with the data and competitive landscape previously established.\n2. completeness_checklist (Binary): TRUE ONLY IF it covers most of the requested trends and includes a distinct \"CEO implication\" for them.\n3. accuracy_checklist (Binary): TRUE ONLY IF key trend data points or claims are sourced. Pre-2024 data is allowed ONLY to show historical trajectory; current trends must be justified by recent market realities.\n4. word_count_checklist (Binary): TRUE ONLY IF the word count is reasonably close to the 400-600 word range.\n5. actionability_checklist (Binary): TRUE ONLY IF the CEO implications offer practical strategic value rather than just generic advice.\n</dimensions>\n\n<pass_rule>\nSet overall_pass to true ONLY IF: contradiction_check is TRUE AND completeness_checklist is TRUE AND accuracy_checklist is TRUE AND word_count_checklist is TRUE AND actionability_checklist is TRUE.\nIf false, set lowest_dimension to the failing dimension name, and lowest_reason to why it failed.\n</pass_rule>\n\n<output>\nReturn ONLY:\n{\"contradiction_check\": true, \"completeness_checklist\": true, \"accuracy_checklist\": true, \"word_count_checklist\": true, \"actionability_checklist\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}\n</output>\n"
+        }
+      },
+      "id": "2ddc3f89-4d25-4097-873c-c4aba034fbec",
+      "name": "P04 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -10128,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "113ab3bd-cc9b-4c04-ab50-530b00d33723",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "672356fd-a59b-4b26-a3bd-99332a18025f",
+      "name": "P04 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -9776,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5758d753-006a-42af-bff1-517e793199d1",
+              "name": "p04_final_text",
+              "value": "={{ $('P04 Reviser').isExecuted ? $('P04 Reviser').last().json.output : $('P04 Key Trends & Disruptions').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8c21f672-9cb1-45c1-b98f-3e93d9318ee9",
+      "name": "P04 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -9472,
+        1456
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "645b8cf9-335f-4a4f-a1c8-94e25d3459e0",
+              "name": "retry_p04",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "50c86524-caaa-443d-8463-f7d62039a7b8",
+      "name": "P04 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10224,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "daed61d3-2759-4528-abd1-6d8fd15f93e1",
+              "leftValue": "={{ $json.retry_p04 }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "987b805d-05a9-43a2-99ea-30bff65d8e0b",
+      "name": "P04 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -10032,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P04 Scorer').item.json.output }}, from the original draft {{ $('P04 Key Trends & Disruptions').item.json.output }}.\n\nThis is the last revised iteratoin:\n{{ $('P04 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged one weakness.\n\n<task>\nRewrite the section fixing ONLY the identified weakness. Do not change content that scored well.\n</task>\n\n<rules>\n- Fix the flagged dimension only.\n- Keep all required subsection headers intact.\n- If accuracy was flagged: add [ESTIMATED] to uncertain figures and explain each one.\n- Maximum 500 words.\n- All 6 trends must remain with classification and CEO implication. Max 500 words.\n</rules>"
+        }
+      },
+      "id": "5fab8e22-8df5-4e02-a53e-30146ddf7d73",
+      "name": "P04 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -9840,
+        1824
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Compile the final Executive Synthesis using the data below:\n\nSection 1:\n{{ $('P01 Save Text').last().json.p01_final_text }}\n\nSection 2:\n{{ $('P02 Save Text').last().json.p02_final_text }}\n\nSection 3:\n{{ $('P03 Save Text').last().json.p03_final_text }}\n\nSection 4:\n{{ $('P04 Save Text').last().json.p04_final_text }}",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant compiling an Executive Synthesis Document.\n\n<task>\nSynthesise the provided sections into a cohesive executive document.\n</task>\n\n<rules>\n- Begin with a 'Short & Sharp Update' section containing exactly 4 simple, direct points (Market Size & Growth, Key market segment at each analysed region, Competitive Landscape, Key Trends & Disruptions). No fluff.\n- Follow immediately with a detailed, 1000-1200 word strategic synthesis of the provided industry context data.\n- The 1000-1200 word synthesis MUST integrate the data cohesively. Do NOT just copy-paste paragraphs from the raw sections.\n- Draft as if a confident MBA student wrote it under time pressure. Be direct, opinionated, and clear.\n- Strictly avoid the words: 'leverage', 'utilize', 'furthermore', 'it is worth noting', 'in conclusion'.\n- Do not invent external data.\n- Do not include references or citations.\n</rules>\n\n<output_format>\n## Short & Sharp Update\n1. **Market Size & Growth**: [1 sentence direct answer]\n2. **Key Market Segments**: [1 sentence direct answer]\n3. **Competitive Landscape**: [1 sentence direct answer]\n4. **Key Trends & Disruptions**: [1 sentence direct answer]\n\n## Executive Strategic Synthesis\n[1000-1200 word detailed synthesis across multiple paragraphs and relevant markdown headers]\n</output_format>"
+        }
+      },
+      "id": "aaf3f709-91c2-4b6e-970c-32b821821f08",
+      "name": "P05 Executive Synthesis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -9232,
+        2160
+      ],
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst reviewing the final Executive Synthesis Document.\nScore the output exactly as instructed below. Return ONLY valid JSON.\n\n<dimensions>\n1. short_sharp_checklist (Binary): TRUE ONLY IF the 'Short & Sharp Update' section exists at the very top with exactly the 4 requested, 1-sentence answers.\n2. synthesis_checklist (Binary): TRUE ONLY IF the main body rewrites and integrates the data rather than copy-pasting the original inputs.\n3. word_count_checklist (Binary): TRUE ONLY IF the synthesis body appears to be between 1000 and 1200 words.\n4. no_reference_checklist (Binary): TRUE ONLY IF there are NO citations or references included.\n5. banned_words_checklist (Binary): TRUE ONLY IF none of the banned words ('leverage', 'utilize', 'furthermore', 'it is worth noting', 'in conclusion') are present.\n</dimensions>\n\n<pass_rule>\nSet overall_pass to true ONLY IF: short_sharp_checklist is TRUE AND synthesis_checklist is TRUE AND word_count_checklist is TRUE AND no_reference_checklist is TRUE AND banned_words_checklist is TRUE.\nIf false, set lowest_dimension to the failing dimension name, and lowest_reason to why it failed.\n</pass_rule>\n\n<output>\nReturn ONLY:\n{\"short_sharp_checklist\": true, \"synthesis_checklist\": true, \"word_count_checklist\": true, \"no_reference_checklist\": true, \"banned_words_checklist\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}\n</output>"
+        }
+      },
+      "id": "626d57cd-097f-444d-8bfd-024b9ef330aa",
+      "name": "P05 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -8720,
+        2064
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2e9400ff-6f2d-4b06-bcdc-42e80bf78642",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a5420f44-a0ab-447a-b38d-88ea244a619e",
+      "name": "P05 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -8368,
+        2064
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2d1ff128-43db-4ffb-ab7d-788fbf1e6e6d",
+              "name": "p05_final_text",
+              "value": "={{ $('P05 Reviser').isExecuted ? $('P05 Reviser').last().json.output : $('P05 Executive Synthesis').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e2f62024-a7ef-4b83-b1e4-cdba8bd17e53",
+      "name": "P05 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8192,
+        2016
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fb0e6057-b76c-4aed-9efd-3fc3276abd04",
+              "name": "retry_p05",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e8a11574-edbb-42f8-9698-5ca00de372a2",
+      "name": "P05 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8736,
+        2288
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "af275b88-0644-455a-8256-a4c984b0646e",
+              "leftValue": "={{ $json.retry_p05 }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "1b1a8e7a-0123-435c-838f-2be95707feae",
+      "name": "P05 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -8512,
+        2288
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P05 Scorer').item.json.output }}, from the original draft {{ $('P05 Executive Synthesis').item.json.output }}.\n\nThis is the last revised iteratoin:\n{{ $('P05 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged one weakness.\n\n<task>\nRewrite the section fixing ONLY the identified weakness. Do not change content that scored well.\n</task>\n\n<rules>\n- Fix the flagged dimension only.\n- Ensure the 'Short & Sharp Update' remains exactly 4 simple, direct sentences.\n- Ensure the synthesis body remains 1000-1200 words.\n- Strictly avoid: 'leverage', 'utilize', 'furthermore', 'it is worth noting', 'in conclusion'.\n- Do not include references.\n</rules>"
+        }
+      },
+      "id": "337407b0-ea0e-4544-9340-e70ee6611ca7",
+      "name": "P05 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -8304,
+        2272
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "353933e0-81a2-48c3-8be4-c9919fd0030c",
+              "name": "retry_p01",
+              "value": "=0",
+              "type": "number"
+            },
+            {
+              "id": "ce9d2b9e-663b-47d1-8edd-26a31544b63f",
+              "name": "retry_p02",
+              "value": "=0",
+              "type": "number"
+            },
+            {
+              "id": "f8421672-5974-4f7e-b0d9-1c5b9d31b230",
+              "name": "retry_p03",
+              "value": "=0",
+              "type": "number"
+            },
+            {
+              "id": "1eccb69e-ed44-41b0-86f3-f0ae05530f5d",
+              "name": "retry_p04",
+              "value": "=0",
+              "type": "number"
+            },
+            {
+              "id": "42effa29-fe7e-4b27-a169-c213e27a6604",
+              "name": "retry_p05",
+              "value": "=0",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "308b5873-214a-446e-a636-10803272162a",
+      "name": "Initialize Counters1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -15232,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Research and write Section 1: Market Size & Growth for the global collectible toy industry. Use the most current data available. Flag any estimates with [ESTIMATED].",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant specialising in the collectible toy sector. Write Section 1 of an Industry Context Document for a CEO.\n\n<cover_exactly>\n1.1 Current global market size in USD billions\n1.2 Historical CAGR past 3-5 years\n1.3 Projected CAGR next 5-10 years\n1.4 Regional breakdown table — North America, Europe, Asia-Pacific, Rest of World with USD value and % share summing to 100%\n1.5 Top 2-3 countries per region with approximate market size\n</cover_exactly>\n\n<rules>\n- No pre-2024 data allowed for current market size or current metrics, but pre-2024 data MAY be used to illustrate historical trends.\n\n- Every single data point (USD value, percentage, share) MUST be immediately followed by an inline citation in brackets, e.g., (Source: Grand View Research, 2024).\n- Collectible toys only: blind boxes, vinyl/designer figures, trading card collectibles, model kits, premium plush, premium figurines. Do NOT include general toy market.\n- Every sentence must contain a data point or named source.\n- All USD figures rounded to one decimal place.\n- Flag uncertain figures with [ESTIMATED] and state reasoning.\n- No generic filler sentences. Word count strictly between 400 and 600 words. Do not pad with generic filler to reach the minimum.\n</rules>\n\n<output_format>\n### Section 1: Market Size & Growth\n**1.1 Global Market Size**\n**1.2 Historical Growth**\n**1.3 Projected Growth**\n**1.4 Regional Breakdown**\n| Region | Revenue (USD B) | Share (%) |\n|--------|----------------|-----------|\n| North America | | |\n| Europe | | |\n| Asia-Pacific | | |\n| Rest of World | | |\n**1.5 Top Countries by Region**\n</output_format>\n\nPlease make sure this is in valid MarkDown format."
+        }
+      },
+      "id": "663b951e-a5fe-489d-b628-054ea4780dd1",
+      "name": "P01 Market Size & Growth1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -15056,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b5813876-c76d-4359-a58c-ab6f331cb4cd",
+              "name": "retry_p01",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ada1ae27-6b9a-42ec-9e12-a7c730d706d7",
+      "name": "P01 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -14480,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "79f2b1a2-2545-43de-87bb-1afafd92f842",
+              "leftValue": "={{ $json.retry_p01 }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "93ec2765-ce26-4923-a6da-ba63d84744e0",
+      "name": "P01 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -14192,
+        1952
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst reviewing Section 1 of a CEO report on the collectible toy industry.\nScore the output exactly as instructed below. Return ONLY valid JSON.\n\n<dimensions>\n1. specificity_checklist (Binary): TRUE ONLY IF the text clearly focuses on collectibles rather than the mass-market general toy industry.\n2. completeness_checklist (Binary): TRUE ONLY IF the 5 required subsections (1.1 to 1.5) are present, and the regional breakdown table sums to approximately 100%.\n3. accuracy_checklist (Binary): TRUE ONLY IF key USD figures and percentages have inline source citations. Pre-2024 data is allowed ONLY if used to demonstrate a historical trend; otherwise, current metrics must be 2024 or newer. Uncertain figures should be marked with [ESTIMATED].\n4. word_count_checklist (Binary): TRUE ONLY IF the word count is reasonably close to the 400-600 word range.\n5. actionability_checklist (Binary): TRUE ONLY IF the section concludes with a clear strategic priority or opportunity identified for a CEO.\n</dimensions>\n\n<pass_rule>\nSet overall_pass to true ONLY IF: specificity_checklist is TRUE AND completeness_checklist is TRUE AND accuracy_checklist is TRUE AND word_count_checklist is TRUE AND actionability_checklist is TRUE.\nIf false, set lowest_dimension to the failing dimension name, and lowest_reason to why it failed.\n</pass_rule>\n\n<output>\nReturn ONLY:\n{\"specificity_checklist\": true, \"completeness_checklist\": true, \"accuracy_checklist\": true, \"word_count_checklist\": true, \"actionability_checklist\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}\n</output>\n"
+        }
+      },
+      "id": "a3c3ab64-dcfc-4b4f-8a83-05ba750ec5fb",
+      "name": "P01 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -14432,
+        1728
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6f7283e2-0f79-4050-a505-bbfa8a4ff07d",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "89fe9eea-ac78-4a96-bf61-912c79a6ae41",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "25545fea-8296-40c8-a964-6e6b1532eab0",
+      "name": "P02 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -13264,
+        1792
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9009ba93-14bd-401d-91d5-88d8899b97ed",
+              "name": "output_original",
+              "value": "={{ $('P02 Market Segmentation').item.json.output_original }}",
+              "type": "string"
+            },
+            {
+              "id": "3bbc3e67-749d-4b5c-950f-b3a3cc6cb0b3",
+              "name": "output_revised",
+              "value": "={{ $('P02 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4e619902-9779-4f0e-9398-a1fa5c792868",
+      "name": "P02 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -12496,
+        1888
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8bc2e413-825c-40fb-9ca7-8680137896b0",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "6cb65d4a-ce60-4989-9948-63ab913db040",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "942db004-86f0-48be-bcbc-c4534e0a7fc1",
+      "name": "P03 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -11952,
+        1744
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2b091e66-fde0-482f-bd1e-c7488d48031f",
+              "name": "output_original",
+              "value": "={{ $('P03 Competitive Landscape').item.json.output_original }}",
+              "type": "string"
+            },
+            {
+              "id": "82ddeeae-4eb5-4c49-8130-54684afbdd3c",
+              "name": "output_revised",
+              "value": "={{ $('P03 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "590d9635-d6ae-4712-b879-8aa1e08c95e4",
+      "name": "P03 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10976,
+        1840
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "557cea4b-1a92-4534-837b-1d965fde70d3",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "a9bc7072-b67c-4e59-92b6-69cb2d6e0544",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5470465a-b5c7-4406-b0e7-342cca37fe4a",
+      "name": "P04 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10416,
+        1728
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "afc23d69-8da0-4494-867f-7afe026372d4",
+              "name": "output_original",
+              "value": "={{ $('P04 Key Trends & Disruptions').item.json.output_original }}",
+              "type": "string"
+            },
+            {
+              "id": "b5fa2994-c19f-4298-b0d8-0492f89d7bf3",
+              "name": "output_revised",
+              "value": "={{ $('P04 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6c901b18-22f1-4b4d-8b20-266e1ced479c",
+      "name": "P04 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -9552,
+        1824
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8fc8ae23-e445-4133-b37c-db667ed3e07f",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "06235dc2-bd2c-4141-9e40-4945a6507121",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9f890669-444b-47ea-8d47-63b6c3d9a1c4",
+      "name": "P05 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8880,
+        2160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1e11895-c89f-4f1c-ad2e-c8b8d70bb574",
+              "name": "output_original",
+              "value": "={{ $('P05 Executive Synthesis').item.json.output_original }}",
+              "type": "string"
+            },
+            {
+              "id": "41f06bab-da2a-4fd0-adaa-a2d572f8c579",
+              "name": "output_revised",
+              "value": "={{ $('P05 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "91dbb5fc-17b6-487b-8a39-43a1d7595633",
+      "name": "P05 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8016,
+        2272
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/claude-sonnet-4-5",
+          "mode": "list",
+          "cachedResultName": "vertex/claude-sonnet-4-5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -14048,
+        2128
+      ],
+      "id": "190a8986-d3a2-43ed-b783-b9b19839b039",
+      "name": "P1 Revisor",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -14432,
+        1584
+      ],
+      "id": "d4ce19cb-a844-48a5-9e08-7a9cd9de9d55",
+      "name": "P1 Scorer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -15056,
+        2000
+      ],
+      "id": "96d2daaf-4c79-41ff-b9d6-72ae83f24a77",
+      "name": "P1 Writer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9627621e-96af-439f-9b8e-322fc5e1d4cb",
+              "name": "p01_final_text",
+              "value": "={{ $('P01 Reviser').isExecuted ? $('P01 Reviser').last().json.output : $('P01 Market Size & Growth1').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dbccb542-d96e-418a-bbb7-cac6972eefe9",
+      "name": "P01 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -13856,
+        1536
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P01 Scorer').item.json.output }}, from the original draft {{ $('P01 Market Size & Growth1').item.json.output }}.\n\nThis is the last revised iteratoin:\n{{ $('P01 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged one weakness.\n\n<task>\nRewrite the section fixing ONLY the identified weakness. Do not change content that scored well.\n</task>\n\n<rules>\n- Fix the flagged dimension only.\n- Keep all required subsection headers intact.\n- If accuracy was flagged: add [ESTIMATED] to uncertain figures and explain each one.\n- Maximum 400-600 words.\n- Keep headers 1.1-1.5. Max 400-600 words.\n</rules>"
+        }
+      },
+      "id": "b790b2bc-daeb-459f-ba6e-d1b240293f48",
+      "name": "P01 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -14048,
+        1936
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -13584,
+        1952
+      ],
+      "id": "e681464c-e243-4134-931c-e68f38b737f2",
+      "name": "P2 Writer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -13056,
+        1552
+      ],
+      "id": "6ce63ada-f163-483e-a31c-f2e5253f820f",
+      "name": "P2 Scorer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -12784,
+        2096
+      ],
+      "id": "89d5a76b-4301-440c-9f2b-5a593f889367",
+      "name": "P2 Revisor",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -11664,
+        1488
+      ],
+      "id": "625b958d-04fd-494f-814d-5a50934798ce",
+      "name": "P3 Scorer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/claude-sonnet-4-5",
+          "mode": "list",
+          "cachedResultName": "vertex/claude-sonnet-4-5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -11264,
+        2048
+      ],
+      "id": "9d128430-23f5-43e7-a555-793938389c18",
+      "name": "P3 Revisor",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -12256,
+        1920
+      ],
+      "id": "8375f61e-9eb1-4a77-997c-b99b19b4cd64",
+      "name": "P3 Writer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/claude-sonnet-4-5",
+          "mode": "list",
+          "cachedResultName": "vertex/claude-sonnet-4-5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -9840,
+        2032
+      ],
+      "id": "7f42416b-5fae-4ccf-8b2a-73443227952c",
+      "name": "P4 Revisor",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -10128,
+        1472
+      ],
+      "id": "96f56f2c-5bf6-4f3e-a876-2b06c0ef2ec4",
+      "name": "P4 Scorer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -10736,
+        1888
+      ],
+      "id": "7c97838b-a124-4d54-a029-2e1fd87db72d",
+      "name": "P4 Writer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/claude-sonnet-4-5",
+          "mode": "list",
+          "cachedResultName": "vertex/claude-sonnet-4-5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -9232,
+        2320
+      ],
+      "id": "3472e3e4-f8c2-4210-babe-d0a518f910ab",
+      "name": "P5 Writer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -8720,
+        1936
+      ],
+      "id": "aeae1c18-24df-4175-a236-2c1eb601d37d",
+      "name": "P5 Scorer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/claude-sonnet-4-5",
+          "mode": "list",
+          "cachedResultName": "vertex/claude-sonnet-4-5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -8304,
+        2480
+      ],
+      "id": "76bfdf33-bb75-4f38-974e-0065686fc359",
+      "name": "P5 Revisor",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "16f59ab0-8b4b-4349-867c-b4239dc6a091",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d29f408b-89cf-4226-bf8b-304b173ed0a2",
+      "name": "P01 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -14080,
+        1728
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ffe17af5-2e4a-478d-85bb-a192115c3151",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "2cafc835-94f6-486e-aec3-fda27f9717fe",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -14656,
+        1856
+      ],
+      "id": "92f305f6-d670-40ae-a006-e3f7317cf0dd",
+      "name": "P01 Newest Output"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "980a0911-3eb2-4ccb-845c-68d581965d85",
+              "name": "output_original",
+              "value": "={{ $('P01 Market Size & Growth1').item.json.output_original }}",
+              "type": "string"
+            },
+            {
+              "id": "14cb51d8-14d9-4020-8978-f4c0063aec5a",
+              "name": "output_revised",
+              "value": "={{ $('P01 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -13776,
+        1936
+      ],
+      "id": "facc0f49-3529-4217-a460-8277c622e374",
+      "name": "P01 Revised Output"
+    },
+    {
+      "parameters": {
+        "content": "Layer 1\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -15872,
+        1824
+      ],
+      "typeVersion": 1,
+      "id": "18383e69-ce8a-4f65-81ab-11886259cf7a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2d1ff128-43db-4ffb-ab7d-788fbf1e6e6d",
+              "name": "p05_mock_output",
+              "value": "=## Short & Sharp Update\n\n1. Market Size & Growth: The global collectible toy market is valued at USD 32.5 billion in 2024 and is projected to grow at 7.1% CAGR through 2029, driven primarily by adult \"kidult\" consumers and premiumisation trends.\n\n2. Key Market Segments: Asia-Pacific dominates with 40% market share (USD 13.0 billion), led by China's USD 5.4 billion blind box ecosystem and Japan's USD 3.0 billion traditional collectibles base, while North America holds 29% and Europe 22%.\n\n3. Competitive Landscape: The market is polarised between IP-deep incumbents (Pokémon at USD 2.2 billion, Bandai Namco at USD 1.6 billion) and platform aggregators (Funko, Pop Mart each around USD 1.1-1.25 billion), with Mattel Creations emerging as the most credible challenger through DTC-first art toy positioning.\n\n4. Key Trends & Disruptions: Adults now represent 58-62% of spending, Asian DTC and livestream models are reshaping global channels, and the market is splitting into a barbell of sub-USD 15 impulse purchases and USD 80+ premium collectibles that together drive disproportionate growth and margin.\n\n## Executive Strategic Synthesis\n\n### The Kidult Economy Has Arrived—and It's Not Going Back\n\nThe collectible toy market is no longer a children's category with adult hobbyists at the margin. It is fundamentally an adult-driven market with a children's acquisition funnel. The 58-62% of spending now attributable to consumers over 18 represents a structural demand shift, not a cyclical quirk. Young adults aged 18-34 alone account for roughly one-third of the entire USD 32.5 billion market, and their consumption patterns—vinyl display pieces, limited-run blind boxes, graded trading cards—bear almost no resemblance to the action-figure aisles of the 1990s. This is a category that has matured into lifestyle positioning, identity curation, and social signalling, all wrapped in the language of nostalgia and fandom.\n\nFor CEOs, this shift demands strategy reorientation. Children remain relevant as the entry cohort—the place where Marvel, Pokémon, and Disney first imprint—but the profit pool and margin expansion sit squarely in the 18+ demographic. Brands that continue to design product, channel strategy, and community engagement primarily for kids will systematically undershoot revenue potential and cede the high-value segments to competitors who treat adults as the core audience from day one.\n\n### Geographic Arbitrage: Asia-Pacific Is Both the Prize and the Playbook\n\nAsia-Pacific's 40% share of the global market is not an accident of population size. It reflects a fundamentally different consumer relationship with collectibles. In China, blind boxes are positioned as affordable luxury and impulse indulgence; Pop Mart's vending machines and branded retail stores create habitual, high-frequency purchasing behaviour that Western mass retail has never replicated. In Japan, model kits and premium figurines occupy a cultural space somewhere between hobby, craft, and fine art, underpinning Bandai Namco's ability to command mid-to-high double-digit ASPs with minimal churn.\n\nThe region's estimated USD 13.0 billion in annual collectible spend is growing faster than North America or Europe, driven by rising disposable income in tier-2 and tier-3 Chinese cities, the continued globalisation of anime and gaming IP, and the premiumisation wave among young professionals. China alone, at USD 5.4 billion, is larger than the entire European market for certain product categories. Japan's USD 3.0 billion base remains the gold standard for collector engagement and product quality. South Korea, at USD 1.1 billion, is the fastest-adopting market for K-pop and VTuber-linked collectibles.\n\nBut the real strategic opportunity is not just selling into Asia—it is exporting the Asian business model. Pop Mart's rapid international expansion into Southeast Asia, Japan, Korea, and now Europe demonstrates that the Chinese playbook of DTC stores, social commerce, designer IP, and scarcity-driven drops translates across borders when executed with local nuance. Western incumbents like Funko and Hasbro are still anchored in wholesale distribution and mass retail, which leaves them structurally disadvantaged in markets where consumer behaviour has already shifted to app-based discovery, livestream unboxing, and direct brand relationships.\n\nFor any player serious about capturing the next decade of growth, Asia-Pacific must be treated as the primary theatre for both revenue expansion and strategic learning. That means boots on the ground, localised IP development, retail partnerships with mall operators and convenience chains, and potentially M&A or joint ventures with regional champions who already own the customer relationship and the distribution infrastructure.\n\n### The Barbell Is Real—and It's Crushing the Middle\n\nThe collectible toy market is bifurcating into two structurally distinct businesses. On one side: sub-USD 15 impulse purchases—blind boxes, trading card boosters, entry-level vinyl figures—that thrive on high velocity, social virality, and low per-transaction friction. On the other: USD 80+ premium collectibles—resin statues, graded cards, deluxe model kits, limited-run designer pieces—that target a smaller but vastly more profitable cohort of serious collectors willing to pay triple-digit prices for authenticity, craftsmanship, and exclusivity.\n\nThe middle is not dead, but it is no longer the engine. The mid-premium band (USD 15-80) is growing at 8-9% CAGR, which sounds healthy until you realise it is being squeezed from both sides. Impulse buyers are conditioned to expect dopamine hits at checkout for under USD 12. High-end collectors are increasingly sophisticated, demanding provenance, limited runs, and direct access via DTC drops that bypass retail markup entirely. Brands stuck in the middle—offering decent but undifferentiated product at USD 30-50 price points through traditional wholesale—are discovering that \"good enough\" no longer commands loyalty in a market defined by either instant gratification or curated rarity.\n\nThe winners are the ones who can play both ends simultaneously. Funko built a USD 1.1 billion business largely on sub-USD 15 Pop! Vinyls, but it is now pushing premium collabs and deluxe editions to capture the high end. Pop Mart dominates the low-ticket blind box category while also launching resin art toys and gallery collaborations at USD 200+. Bandai Namco anchors the premium tier with Tamashii Nations statues while flooding the entry funnel with accessible Gunpla kits. The barbell is not just a pricing architecture—it is a deliberate customer journey, designed to onboard collectors at low cost and then migrate them upward over time as fandom deepens and wallets open.\n\nFor operators, this means rethinking SKU strategy, margin expectations, and channel allocation. Low-ticket products need volume, speed, and social amplification; they are margin-thin but essential for brand heat and funnel filling. High-ticket products need scarcity, storytelling, and direct consumer access; they are margin-rich but require a fundamentally different go-to-market motion. Trying to optimise both through the same channel and the same operational playbook is a recipe for mediocrity.\n\n### IP Fragmentation Is Both Opportunity and Execution Nightmare\n\nThe days of building a collectibles business around three or four tentpole franchises are fading. Pokémon, Marvel, Star Wars, and Dragon Ball still anchor a huge share of the market, but incremental growth is increasingly coming from smaller, faster-cycling IP: mid-tier anime that trend for 18 months, VTuber personas with rabid but geographically concentrated followings, K-pop groups whose merchandise windows open and close in weeks, and original designer characters that scale from Instagram to retail within a single year.\n\nThis fragmentation creates asymmetric opportunities for platform aggregators. Pop Mart does not own a single globally dominant IP in the traditional sense, yet it has built a USD 1.25 billion business by curating a rotating portfolio of designer characters—Molly, Dimoo, Skullpanda—and treating each as a micro-brand with its own aesthetic, drop cadence, and collector community. Funko's model is similar: it does not need to own Spider-Man or Harry Potter; it just needs the licence, the speed to market, and the distribution muscle to flood retail before the cultural moment passes.\n\nBut fragmentation also raises execution complexity. More IP means more licensors, more SKU proliferation, more inventory risk, and more marketing noise. Brands that lack a clear editorial point of view—a coherent thesis about what they stand for and which fandoms they serve—will drown in the chaos. The winners will be the ones who can operate a \"fast incubation, fast kill\" model: launch small, test fast, scale winners aggressively, and ruthlessly cut losers before they become balance-sheet liabilities.\n\nFor traditional toy companies built on multi-year development cycles and billion-dollar tentpole bets, this is culturally and operationally alien. The collectibles game increasingly rewards agility, not scale. It rewards taste, not research. It rewards direct consumer signal over retailer feedback. Companies that cannot rewire their operating models to compete on speed and curation will find themselves licensing out their best IP to nimbler challengers who can move at the pace the market now demands.\n\n### DTC and Drops Are the New Default, Not the Exception\n\nThe channel landscape for collectibles has fundamentally flipped. What was once a speciality tactic—direct-to-consumer drops, pre-orders, livestream launches—is now table stakes. In China, livestream and social commerce already account for 30-35% of blind box and designer toy GMV. Globally, DTC and marketplace channels are on track to exceed 40% of collectible value by 2029, up from roughly one-third today.\n\nThis is not just e-commerce maturation. It is a structural reordering of how collectors discover, acquire, and authenticate product. The traditional retail model—manufacture, ship to distributor, stock shelves, wait for sell-through—cannot compete with a DTC drop model that creates scarcity, captures full margin, and generates social proof in real time. Hasbro Pulse and Mattel Creations are already demonstrating that a well-executed drop can sell out a USD 200 premium figure in under an hour, with zero wholesale intermediation and minimal inventory risk.\n\nFor incumbents, this creates both opportunity and existential threat. The opportunity: recapture margin currently lost to wholesale discounts, secondary markets, and retail markdowns. The threat: alienate the retail partners who still control shelf space and consumer traffic in mass channels, particularly for the sub-USD 15 impulse tier that still depends on physical browse and checkout placement.\n\nThe answer is not to abandon wholesale, but to treat DTC as the primary relationship and wholesale as the volume amplifier. Design hero products and limited runs exclusively for direct channels, where you control pricing, messaging, and customer data. Use retail for the high-velocity, broadly licensed, everyday SKUs that benefit from impulse visibility. And accept that a growing share of your highest-value collectors will never set foot in a toy aisle again—they live on Discord, follow drops via push notification, and expect you to meet them where they are, not where your legacy distribution agreements say you should be.\n\n### What This Means for the Next Five Years\n\nThe collectible toy market is not broken. It is bifurcating, accelerating, and relocating—all at once. The old playbook of kids-first positioning, wholesale-dominant distribution, and tentpole IP concentration still works for parts of the market, but it is no longer the growth vector. The new playbook is adult-first, DTC-enabled, IP-agnostic, Asia-informed, and structured around a barbell of impulse accessibility and premium curation.\n\nCompanies that recognise this early and rewire accordingly—repositioning brand for kidults, building direct consumer infrastructure, curating portfolios of micro-IP, studying and selectively copying the Asian model, and treating premiumisation as strategy not opportunism—will capture disproportionate value. Those that treat these trends as noise or niche will wake up in three years to discover that the market has moved on without them, and that the competitive set now includes challengers from China and Japan who never read the old rules in the first place.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4fb9d187-4a8d-4171-8267-2daedf23d0fb",
+      "name": "P05 Save Text1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -15664,
+        2608
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "P07_save",
+              "name": "p07_final_text",
+              "value": "={{ $('P07 Reviser').isExecuted ? $('P07 Reviser').last().json.output : $('P07 Profit Pool Analysis').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d8956508-817f-44b9-bd56-01fb1797bd48",
+      "name": "P07 Save Text1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -13056,
+        2512
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -14960,
+        2480
+      ],
+      "id": "2c6c2650-473b-46f6-a5a4-a83f3308c457",
+      "name": "P1 Scorer1",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -15424,
+        2800
+      ],
+      "id": "4936363f-8007-4cc4-bed4-6561b182c9c1",
+      "name": "P06 Writer Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "09c5780a-2643-40e6-9284-2df146f1eee6",
+              "name": "output_original",
+              "value": "={{ $('P09 Executive Synthesis').item.json.output_original }}",
+              "type": "string"
+            },
+            {
+              "id": "8edef7de-bd24-4bc2-9014-9d0e7fe792e3",
+              "name": "output_revised",
+              "value": "={{ $('P09 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6d085e5c-3197-4c1c-8242-72d5c0450ff6",
+      "name": "P09 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10288,
+        2768
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P09 Scorer').item.json.output }}, from the original draft {{ $('P09 Executive Synthesis').item.json.output }}.\n\nThis is the last revised iteratoin:\n{{ $('P09 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged a weakness in your final synthesis.\n\n<task>\nRewrite fixing ONLY the identified weakness.\n</task>\n\n<rules>\n- If synthesis is weak: blend the concepts better so it does not look copied and pasted.\n- If style_compliance is weak: aggressively cut dashed phrases (-), banned words (leverage, utilize, furthermore, it is worth noting, in conclusion), and overly long sentences.\n- Target 600–800 words.\n</rules>"
+        }
+      },
+      "id": "9237966d-5130-44fa-95c3-17d64dbd524f",
+      "name": "P09 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -10592,
+        2768
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c3f56808-994d-41c9-bb0a-8048de1231d8",
+              "leftValue": "={{ $json.retry_p09 }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "c3237823-f0f7-4f08-a716-1b0c42760169",
+      "name": "P09 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -10784,
+        2768
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "43421e1e-330b-4fbc-8b4f-07f813d5cde3",
+              "name": "retry_p09",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "89db648a-e699-45eb-84f6-d7bf7b7a55aa",
+      "name": "P09 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10992,
+        2768
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "24cbc00e-8400-4cb2-a096-0643f23d4b97",
+              "name": "p09_final_text",
+              "value": "={{ $('P09 Reviser').isExecuted ? $('P09 Reviser').last().json.output : $('P09 Executive Synthesis').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "baaccec4-9f75-4ab1-a26b-e6a5286c43be",
+      "name": "P09 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -9856,
+        2944
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "64c97c97-a35e-4a84-aa6d-4db21321f8cf",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "fdcae224-3aeb-44de-96c2-6f38f2df8fe0",
+      "name": "P09 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -10464,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst. Score the output exactly as instructed. Return ONLY valid JSON.\n\nDimensions:\n1. completeness: TRUE if the four required sections (Executive Summary, Structural Dynamics, The Value Imperative, Strategic Blueprint) are present.\n2. synthesis: TRUE if the text reads as a single cohesive narrative rather than disjointed bullet lists from previous steps.\n3. style_compliance: TRUE if the text avoids banned words (leverage, utilize, furthermore, it is worth noting, in conclusion), contains NO dashes in sentences, and avoids long run-on sentences.\n4. impact: TRUE if the tone is confident, direct, and opinionated (consultant grade).\n\nPass Rule: overall_pass = true if all dimensions are TRUE.\n\nReturn ONLY:\n{\"completeness\": true, \"synthesis\": true, \"style_compliance\": true, \"impact\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}"
+        }
+      },
+      "id": "cfddc8e2-93a7-4e17-a643-ad3ae40e37c0",
+      "name": "P09 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -10832,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "51298f9b-87f2-4777-8984-27d956fe2483",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "88719818-3f24-4517-9ef0-f192a59bfc10",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1ae023b7-dfe0-4055-9762-efa5b4f9cb68",
+      "name": "P09 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -11056,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=- P06 Forces: {{ $('P06 Save Text').last().json.p06_final_text }}\n- P07 Profit Pools: {{ $('P07 Save Text1').item.json.p07_final_text }}\n- P08 KSFs: {{ $('P08 Save Text').last().json.p08_final_text }}\n\nThe above were created based on {{ $('P05 Save Text').last().json.p05_final_text }}\n\nYou are a senior strategy consultant compiling an executive strategy memo under time pressure.\n\n<task>\nSynthesise the outputs of P06 (Forces), P07 (Profit Pools), and P08 (Key Success Factors) into a single, cohesive Layer 2 Executive Document.\n</task>",
+        "options": {
+          "systemMessage": "<style_rules>\n- Draft as if a senior strategy consultant wrote it under time pressure.\n- Be direct, opinionated, and clear. Cut any sentence that does not add a new idea.\n- BANNED WORDS: \"leverage\", \"utilize\", \"furthermore\", \"it is worth noting\", \"in conclusion\".\n- DO NOT use dashes (-) in sentences.\n- Avoid overly long sentences. Avoid obvious AI fluff.\n</style_rules>\n\n<rules>\n- Word count target: 500–700 words.\n- Do not just copy and paste the previous outputs. Integrate them into a compelling narrative.\n- Use clear, unnumbered headings.\n</rules>\n\n<required_output>\n1. Executive Summary: The single most important takeaway regarding industry attractiveness and where the money is.\n2. Structural Dynamics: A synthesis of the P06 Five Forces, highlighting only the most critical threats and power imbalances.\n3. The Value Imperative: A synthesis of the P07 Profit Pools, identifying exactly where margin is concentrated.\n4. Strategic Blueprint: A synthesis of the P08 Key Success Factors, explaining the operational capabilities required to win.\n</required_output>"
+        }
+      },
+      "id": "cdb2d29f-1210-4e8c-85ed-248545d1d424",
+      "name": "P09 Executive Synthesis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -11360,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ed7bdf0e-f6a2-4268-a60c-7b8254fb18f6",
+              "name": "output_original",
+              "value": "={{ $('P08 Key Success Factors').item.json.output_original }}",
+              "type": "string"
+            },
+            {
+              "id": "fb56d02a-2110-49ac-ab5d-ba36f0745c8e",
+              "name": "output_revised",
+              "value": "={{ $('P08 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3de50466-619e-441a-9f48-716e2fb7d7fb",
+      "name": "P08 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -11760,
+        2752
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P08 Scorer').item.json.output }}, from the original draft {{ $('P08 Key Success Factors').item.json.output }}.\n\nThis is the last revised iteratoin:\n{{ $('P08 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged a weakness in the KSF draft.\n\n<task>\nRewrite fixing ONLY the identified weakness.\n</task>\n\n<rules>\n- Explicitly tie KSFs to P06 or P07 if missing. Rewrite vague goals into specific capabilities.\n- Strictly adhere to style rules: NO dashes in sentences. NO banned words.\n- Add a \"Revisions Made\" section. Target 300–500 words.\n</rules>"
+        }
+      },
+      "id": "3492feb8-1f3e-44a3-a6eb-75ab20718f8c",
+      "name": "P08 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -12064,
+        2752
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "56223f49-c9b5-4896-a0c1-6e3a4d1e9abd",
+              "leftValue": "={{ $json.retry_p08 }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "edc8db6f-a0e9-4a77-bf9a-1a7f3d8a2108",
+      "name": "P08 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -12256,
+        2752
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6f76f078-26cb-4a93-b256-20ada6e8c999",
+              "name": "retry_p08",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2922c295-3ce1-450d-998a-4049970ceb2a",
+      "name": "P08 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -12464,
+        2752
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b74aac65-efb0-42a9-9b58-47060ea4f1fc",
+              "name": "p08_final_text",
+              "value": "={{ $('P08 Reviser').isExecuted ? $('P08 Reviser').last().json.output : $('P08 Key Success Factors').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "61f1573a-34ac-482c-b0d2-cafa0bb6ccfd",
+      "name": "P08 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -11616,
+        2464
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ef4092dc-856e-4181-a5a0-921c06a66564",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f59421fe-bf72-4a4a-84e3-5eb424992f71",
+      "name": "P08 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -11920,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst. Score the output exactly as instructed. Return ONLY valid JSON.\n\nDimensions:\n1. specificity: TRUE if KSFs are specific to collectibles (e.g. fast IP incubation).\n2. completeness: TRUE if 4-6 KSFs are present with all sub-bullets and CEO synthesis.\n3. consistency: TRUE if every KSF explicitly addresses a high threat Force from P06 or high margin Profit Pool from P07.\n4. actionability: TRUE if the KSF describes a tangible operational capability.\n5. style_compliance: TRUE if the text avoids banned words (leverage, utilize, furthermore, it is worth noting, in conclusion) and contains NO dashes in sentences.\n\nPass Rule: overall_pass = true if all dimensions are TRUE.\n\nReturn ONLY:\n{\"specificity\": true, \"completeness\": true, \"consistency\": true, \"actionability\": true, \"style_compliance\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}"
+        }
+      },
+      "id": "d439f4e0-14cc-4ae1-bc10-a742f22adcd8",
+      "name": "P08 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -12224,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1da89cfd-f5cb-47a0-9af5-ad52a1f2e553",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "5047ed49-ef2c-41a3-b61e-3724f6779814",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bddbbf45-544b-4168-b000-579d9f0f292d",
+      "name": "P08 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -12512,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Use mainly:\n- {{ $('P05 Save Text').last().json.p05_final_text }}\n\nAlso read\n- P06 Forces: {{ $('P06 Save Text').last().json.p06_final_text }}\n- P07 Profit Pools: {{ $json.p07_final_text }}\n\nYou are a senior strategy consultant. Using P05, P06, and P07, identify 4 to 6 Key Success Factors (KSFs) for the collectible toy industry.",
+        "options": {
+          "systemMessage": "<style_rules>\n- Draft as if a senior strategy consultant wrote it under time pressure.\n- Be direct, opinionated, and clear. Cut any sentence that does not add a new idea.\n- BANNED WORDS: \"leverage\", \"utilize\", \"furthermore\", \"it is worth noting\", \"in conclusion\".\n- DO NOT use dashes (-) in sentences.\n- Avoid overly long sentences. Avoid obvious AI fluff.\n</style_rules>\n\n<rules>\n- Word count target: 300–500 words.\n- KSFs must be actionable capabilities or structural advantages (e.g. Agile IP Incubation Engine), not generic goals.\n- Every KSF must directly link to overcoming a high threat from P06 or capturing a high margin pool from P07.\n</rules>\n\n<required_output>\n1. KSF List (4-6 items). For each KSF provide:\n- Name: Sharp, opinionated title.\n- Capability Description: What the firm must actually do.\n- Strategic Linkage: Explicitly state which P06 Force or P07 Profit Pool this addresses.\n- Evidence Tag: Bracketed tag to P05.\n2. CEO Synthesis (1 paragraph): How these KSFs combine to create a defensible moat.\n</required_output>"
+        }
+      },
+      "id": "091a579e-3a4a-47b4-a2c4-098f34183b54",
+      "name": "P08 Key Success Factors",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -12816,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7c48d88c-0bce-4c35-9b74-83af4c78e725",
+              "name": "output_original",
+              "value": "={{ $('P07 Profit Pool Analysis').item.json.output_original }}",
+              "type": "string"
+            },
+            {
+              "id": "1459a21c-2539-4331-b0d7-68ba3aa6c604",
+              "name": "output_revised",
+              "value": "={{ $('P07 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b166f1ec-de32-4255-a8b1-c3769a697f51",
+      "name": "P07 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -13072,
+        2816
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P07 Scorer').item.json.output }}, from the original draft {{ $('P07 Profit Pool Analysis').item.json.output }}.\n\nThis is the last revised iteratoin:\n{{ $('P07 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged a weakness in the Profit Pool draft.\n\n<task>\nRewrite fixing ONLY the identified weakness.\n</task>\n\n<rules>\n- Resolve logical contradictions between P07 margins and P06 power dynamics.\n- Replace generic stages with collectibles specific stages if needed.\n- Strictly adhere to style rules: NO dashes in sentences. NO banned words.\n- Add a \"Revisions Made\" section. Target 300–500 words.\n</rules>"
+        }
+      },
+      "id": "a3604c89-3ad6-4d0f-92ec-38f1bb305f13",
+      "name": "P07 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -13376,
+        2816
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "34e2264d-fbba-4972-b05b-485b065fbe46",
+              "leftValue": "={{ $json.retry_p07 }}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "536a9f47-31d8-4192-969c-733d6c41b589",
+      "name": "P07 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -13568,
+        2816
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49a94f96-0b06-45b4-b714-01b41d3063a0",
+              "name": "retry_p07",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e3d8ff48-7fcf-4e4d-bc6f-35274c1caee4",
+      "name": "P07 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -13776,
+        2816
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e337d38b-b361-4d3b-ae9c-2f0c563c423a",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f9cbc8b4-6a01-4dde-887c-bcb316e0cb4b",
+      "name": "P07 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -13328,
+        2592
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst. Score the output exactly as instructed. Return ONLY valid JSON.\n\nDimensions:\n1. specificity: TRUE if value chain stages reflect P05 (IP, DTC, Blind Box) rather than generic manufacturing.\n2. completeness: TRUE if Table, Insights, and Implications are all present.\n3. consistency: TRUE if margins/power align with P06. (e.g. high power in P06 = high margin in P07).\n4. source_robustness: TRUE if insights and table rows contain bracketed tags.\n5. style_compliance: TRUE if the text avoids banned words (leverage, utilize, furthermore, it is worth noting, in conclusion) and contains NO dashes in sentences.\n\nPass Rule: overall_pass = true if all dimensions are TRUE.\n\nReturn ONLY:\n{\"specificity\": true, \"completeness\": true, \"consistency\": true, \"source_robustness\": true, \"style_compliance\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}"
+        }
+      },
+      "id": "ab02a839-c8b8-45a1-af97-5136c5b0a239",
+      "name": "P07 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -13632,
+        2592
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "897b1f4a-58b9-49fa-b76a-8998f563d54a",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "70ef6ce3-f9a7-487d-b06b-3070e352e739",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2da5a608-b496-49f0-9999-ecba36f703ed",
+      "name": "P07 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -13824,
+        2592
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Use mainly\n- P05 Text: {{ $('P05 Save Text').last().json.p05_final_text }}\n\nCan also see:\n- P06 Forces: {{ $json.p06_final_text }}\n\nYou are a senior strategy consultant. Using only the Layer 1 P05 Context Text and the Layer 2 P06 Forces output, perform a qualitative Profit Pool Analysis for the collectible toy industry.",
+        "options": {
+          "systemMessage": "<style_rules>\n- Draft as if a senior strategy consultant wrote it under time pressure.\n- Be direct, opinionated, and clear. Cut any sentence that does not add a new idea.\n- BANNED WORDS: \"leverage\", \"utilize\", \"furthermore\", \"it is worth noting\", \"in conclusion\".\n- DO NOT use dashes (-) in sentences.\n- Avoid overly long sentences. Avoid obvious AI fluff.\n</style_rules>\n\n<rules>\n- Word count target: 300–500 words.\n- Focus strictly on the value chain stages that matter in P05: IP Development, Impulse Blind Box Production, Premium Statue Production, Traditional Wholesale, DTC Channels, and the Secondary Market.\n- Use relative labels (High/Med/Low) for Margin and Revenue. Do not invent numbers.\n- Trace every assertion to P05 or P06 via short bracketed tags.\n</rules>\n\n<required_output>\n1. Profit Pool Map (Table):\n- Columns: Value Chain Stage | Key Players | Relative Revenue Share | Relative Profit Margin | Key Driver | Source Tag.\n2. Profit Pool Insights (3-4 bullets): Identify where the profit is concentrated and where the choke points are.\n3. Strategic Implications (3 bullets): How a CEO should reposition their company.\n</required_output>"
+        }
+      },
+      "id": "8d5437f4-cbc1-43bf-a2e7-b921dba9f8bb",
+      "name": "P07 Profit Pool Analysis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -14128,
+        2592
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b81dd7d6-24f1-460f-9fed-22179dd2a001",
+              "name": "output_original",
+              "value": "={{ $('P06 Porter\\'s Five Forces').item.json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "83ff9b81-3bb6-410a-b52a-9909358cd671",
+              "name": "output_revised",
+              "value": "={{ $('P06 Reviser').item.json.output || null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "be3be7fd-2946-430d-81d9-12ad1f057f60",
+      "name": "P06 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -14368,
+        2800
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Here's the feedback {{ $('P06 Scorer').item.json.output }}, from the original draft {{ $('P06 Porter\\'s Five Forces').item.json.output }}\n\nThis is the last revised iteratoin:\n{{ $('P06 Newest Output').item.json.output_revised || \"\" }}\n\n\nIf above if empty, revise the original draft.\nRewrite based on the feedback.",
+        "options": {
+          "systemMessage": "You are the senior strategy consultant who wrote the original draft. A QA reviewer flagged a weakness.\n\n<task>\nRewrite the draft Porter Five Forces analysis fixing ONLY the identified weakness. Do not change content that scored well.\n</task>\n\n<rules>\n- Fix specificity, source tags, or logic based on QA feedback.\n- Strictly adhere to style rules: NO dashes in sentences. NO banned words (leverage, utilize, furthermore, it is worth noting, in conclusion). Keep sentences short and punchy.\n- Add a \"Revisions Made\" section. Target 300–500 words.\n</rules>"
+        }
+      },
+      "id": "a445b6a7-48c7-4e9a-9fd9-5504ada30531",
+      "name": "P06 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -14656,
+        2768
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "aad45bf0-4323-4e54-896f-fa65b76d3c96",
+              "leftValue": "={{ $json.retry_p06 }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "79a4769a-ba11-428a-94b9-ff830cb21827",
+      "name": "P06 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -14864,
+        2784
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "15c6cf09-3526-4bd2-8be3-9178191a5599",
+              "name": "retry_p06",
+              "value": "={{ $runIndex + 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f1feb8ae-9b8b-4a28-a3af-134020167fc9",
+      "name": "P06 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -15056,
+        2784
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "75c1288c-e291-47b9-b6fc-c3f5a776cbca",
+              "name": "=p06_final_text",
+              "value": "={{ $('P06 Reviser').isExecuted ? $('P06 Reviser').last().json.output : $('P06 Porter\\'s Five Forces').last().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b38aa8d1-3b55-4b44-8b3d-244d621b088d",
+      "name": "P06 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -14352,
+        2496
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "09cbdd1f-c484-4652-9714-f8a65672f883",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "\"overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "781f5491-d06d-4b97-beb9-7b9d3259faa8",
+      "name": "P06 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -14656,
+        2608
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Please evaluate this:\n\nOutput to score:\n{{ $json.output_revised || $json.output_original }}",
+        "options": {
+          "systemMessage": "You are a QA analyst. Score the output exactly as instructed. Return ONLY valid JSON.\n\nDimensions:\n1. specificity: TRUE if the analysis focuses on collectible toys (kidults, DTC drops, Asia Pacific) rather than generic toys.\n2. completeness: TRUE if all 5 forces are present (each with a score and 3 bullets) and CEO implications are included.\n3. consistency: TRUE if force scores match the reasoning and P05 text.\n4. source_robustness: TRUE if each force and implication contains at least one Layer 1 tag.\n5. style_compliance: TRUE if the text avoids banned words (leverage, utilize, furthermore, it is worth noting, in conclusion) and contains NO dashes in sentences.\n\nPass Rule: overall_pass = true if all dimensions are TRUE.\n\nReturn ONLY:\n{\"specificity\": true, \"completeness\": true, \"consistency\": true, \"source_robustness\": true, \"style_compliance\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\"}"
+        }
+      },
+      "id": "0e694645-63a7-4286-8dc6-96c78b989664",
+      "name": "P06 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -14960,
+        2608
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6253b520-ba5f-4344-af89-eac4c980274c",
+              "name": "output_original",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "c90c746b-894f-4bab-9c7b-e0c8d68338de",
+              "name": "output_revised",
+              "value": "={{ $json.output_revised || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c53bd469-f353-4b14-b2e2-0315f80c6252",
+      "name": "P06 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -15120,
+        2608
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "= \nUse only: {{ $('P05 Save Text').last().json.p05_final_text }}\n\nto analysis. ",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant specialising in the global collectible toy industry. Using only the Layer 1 P05 Context Text, apply Porter's Five Forces specifically to collectible toys.\n\n<style_rules>\n- Draft as if a senior strategy consultant wrote it under time pressure.\n- Be direct, opinionated, and clear. Cut any sentence that does not add a new idea.\n- BANNED WORDS: \"leverage\", \"utilize\", \"furthermore\", \"it is worth noting\", \"in conclusion\".\n- DO NOT use dashes (-) in sentences.\n- Avoid overly long sentences. Avoid obvious AI fluff.\n</style_rules>\n\n<rules>\n- Word count target: 300–500 words. Prioritise sharp, specific analysis over length.\n- Focus on collectibles dynamics: adult kidult demand, Asia Pacific models, IP fragmentation, DTC drops, and the barbell price structure.\n- Every point must be traceable to Layer 1 P05 via short quotes or paraphrases with section labels (e.g., [Kidult Economy], [Barbell Pricing]).\n</rules>\n\n<required_output>\n1. Overview (2–3 bullets): What structurally defines the collectible toy industry vs mass toys.\n2. Force-by-Force Analysis (Rivalry, Entrants, Buyers, Suppliers, Substitutes):\n- Force score: 1–10 (1 = weak, 10 = strong).\n- 3 bullets per force specific to collectibles. End each with a Layer 1 tag in brackets.\n3. CEO Implications (3–5 bullets): Clear \"so what\" statements.\n</required_output>"
+        }
+      },
+      "id": "762f7402-5293-4ffe-a303-9c441133c884",
+      "name": "P06 Porter's Five Forces",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -15424,
+        2608
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/claude-sonnet-4-5",
+          "mode": "list",
+          "cachedResultName": "vertex/claude-sonnet-4-5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -14672,
+        3008
+      ],
+      "id": "0ad4a37a-eab7-4458-93f9-e428ae69ca8d",
+      "name": "P6 Revisor",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -14128,
+        2752
+      ],
+      "id": "7f24ca8f-9173-464b-ab85-8f1c9c5ac915",
+      "name": "P7 Writer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -13632,
+        2480
+      ],
+      "id": "072eaf83-5905-4539-9645-a7da3caf04ae",
+      "name": "P7 Scorer",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/claude-sonnet-4-5",
+          "mode": "list",
+          "cachedResultName": "vertex/claude-sonnet-4-5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -13376,
+        3024
+      ],
+      "id": "29587ee4-faf1-44db-b3a7-33d7dd7be704",
+      "name": "P7 Revisor",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -12816,
+        2720
+      ],
+      "id": "4a062ec3-91a6-456a-817e-4007009350be",
+      "name": "P08 Writer Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -12224,
+        2464
+      ],
+      "id": "0c295ae3-7d43-4194-b363-9ba71e82f53b",
+      "name": "P08 Scorer Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -12064,
+        2960
+      ],
+      "id": "a1aa4f0f-21a1-482d-ad72-b5e5557ef10f",
+      "name": "P08 Reviser Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/claude-sonnet-4-5",
+          "mode": "list",
+          "cachedResultName": "vertex/claude-sonnet-4-5"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -10592,
+        2976
+      ],
+      "id": "d182143c-38e7-4fa0-b32c-43040b4e63e4",
+      "name": "P09 Reviser Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "azure/gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "azure/gpt-5.1"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -11360,
+        2720
+      ],
+      "id": "59ce2072-ad57-430e-8add-3b3780752f00",
+      "name": "P09 Writer Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "vertex/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "vertex/gemini-3-pro-preview"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -10832,
+        2464
+      ],
+      "id": "4b4abd17-5aa8-4491-b6e7-ffef75b81876",
+      "name": "P09 Scorer Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "P0dmIAtv0DvOjUJP",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Layer 2\n\n"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -15984,
+        2592
+      ],
+      "typeVersion": 1,
+      "id": "e9e45cb1-756a-48e4-9cad-16154e842823",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bf525c9a-4d06-4c6b-bdcf-c4c8bf3c3044",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -15712,
+        4272
+      ],
+      "id": "c001082c-2b41-4f0b-acbf-dd63d71d1b04",
+      "name": "Webhook",
+      "webhookId": "bf525c9a-4d06-4c6b-bdcf-c4c8bf3c3044"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "Noam test text"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "953b6c54-11d5-4a8d-9dbb-e1a8834bbdfe",
+      "name": "Step 1 - Toy Research (This Year)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -15440,
+        4272
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "Market research suggests toys are selling fast last year"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2ec439a6-dcf6-4b4a-a987-86698ad339fd",
+      "name": "Step 2 - Toy Research (Last Year)1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -14544,
+        4256
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "this is the final step"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e54797e3-0f06-42bf-91eb-26a1f2b3ecbb",
+      "name": "Step 3 - Final Step1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -13568,
+        4240
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "report",
+              "value": "this is the report generated through strategic automation engine"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "68503167-c891-4443-a949-c905c9a83c7a",
+      "name": "Step 4 - Generate Report1",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -12736,
+        4224
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "61af7f0c-3e6e-48a3-a0f4-5d8bb90a8e70",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -14832,
+        4272
+      ],
+      "id": "8f82ecf1-cc41-44cd-85a0-0edfc373749c",
+      "name": "Checking Approval1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6d4a9782-963a-442a-9c41-9ad9fbad7eaf",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -13840,
+        4256
+      ],
+      "id": "3e7539a0-9dc8-4925-8243-1913a3d789f6",
+      "name": "Checking Approval2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4218d573-1d7c-4311-889a-c808eb760b5e",
+              "leftValue": "={{ $json.body.action }}",
+              "rightValue": "approved",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -12992,
+        4240
+      ],
+      "id": "a9a81daa-1033-432b-8e52-5c191a390e64",
+      "name": "Checking Approval3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2200fvk7-5173.usw2.devtunnels.ms/api/pending-approvals-2",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "callback_url",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.project_id }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -14320,
+        4256
+      ],
+      "id": "f35e02bd-27b9-4c96-aee6-c6977813db39",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2200fvk7-5173.usw2.devtunnels.ms/api/pending-approvals-1",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=message",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "callback_url",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.body.project_id }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -15232,
+        4272
+      ],
+      "id": "b840e89e-109a-4d25-adb9-d428d0a427a0",
+      "name": "HTTP Request1",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2200fvk7-5173.usw2.devtunnels.ms/api/pending-approvals-3",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.message }}"
+            },
+            {
+              "name": "callback_url",
+              "value": "={{ $execution.resumeUrl }}"
+            },
+            {
+              "name": "=project_id",
+              "value": "={{ $json.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -13376,
+        4240
+      ],
+      "id": "6d03f339-d77a-4e10-84ff-7f86d9484f96",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "is_approved",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -14080,
+        4256
+      ],
+      "id": "e6708d8b-15c3-4044-81d7-ad8bb5946916",
+      "name": "Wait2",
+      "webhookId": "086a5af5-9b80-4d28-bbf7-3839a864d369"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "is_approved",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -15040,
+        4272
+      ],
+      "id": "f51a4471-567d-48ce-8221-e485e0848317",
+      "name": "Wait1",
+      "webhookId": "8785a85c-16f6-4151-9745-0ac5d6b34252"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "is_approved",
+                "value": "true"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -13184,
+        4240
+      ],
+      "id": "95cebebb-42a7-47bc-897d-1c9f42a2cb86",
+      "name": "Wait3",
+      "webhookId": "cf991238-91ec-4bf8-9331-09588ec4a1fa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://2200fvk7-5173.usw2.devtunnels.ms/api/final-report",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "report",
+              "value": "={{ $json.report }}"
+            },
+            {
+              "name": "project_id",
+              "value": "={{ $json.project_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -12560,
+        4224
+      ],
+      "id": "05be1cf7-78c0-43bc-bcc2-93e658898648",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "content": "Noam's"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -15680,
+        4160
+      ],
+      "typeVersion": 1,
+      "id": "922c56b8-ef33-495a-a8a2-ee36654e4f22",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Using P05  {{ $('P05 Save Text').item.json.p05_final_text }} and P09 {{ $('P09 Executive Synthesis').item.json.output }} (especially P08 KSFs), plus the CEO profile from HITL checkpoint 2 , produce a Capability Gap Analysis.\n\nCEO_PROFILE from HITL checkpoint 2 (HITL‑2 CEO screen responses as JSON):\n[Context Attached]\n\nKSFs from P08:\n[Context Attached]\n\nDeliverable: a table with columns\nKSF | Current Capability | Gap Severity [High/Medium/Low] | Strategic Implications\nfollowed by 2–3 bullet points summarising the most important gaps.\nRange 400-600 words.",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant.\n\n<inputs>\n- P08: Key Success Factors (KSFs) for the collectible toy industry.\n- CEO_PROFILE JSON from HITL checkpoint 2, derived from the HITL‑2 CEO screen:\nGROWTH_FOCUS, RISK, REGION, CHANNEL, CAPITAL, CAP_STRENGTHS, SUCCESS_3Y_BUTTON, SUCCESS_3Y_TEXT, SUCCESS_3Y_MODE.\n</inputs>\n\n<task>\n\nInterpret CEO intent:\n- If SUCCESS_3Y_TEXT is non‑empty, treat it as the primary definition of success.\n- Otherwise, infer success from SUCCESS_3Y_BUTTON and GROWTH_FOCUS.\nFor each KSF in P08, create one row with:\n- KSF.\n- Current Capability: “Strong”, “Adequate”, or “Weak/Unclear”, inferred from CAP_STRENGTHS only.\n- Gap Severity: High / Medium / Low, based on:\n• How critical that KSF is to the CEO’s 3‑year success.\n• The chosen GROWTH_FOCUS, RISK, and CAPITAL levels.\n- Strategic Implications: 1–2 short phrases on what this means for delivering the CEO’s 3‑year success.\nAfter the table, add 2–3 bullet points highlighting the 3 most important capability gaps.\n</task>\n<rules>\n- Do not invent detailed capabilities: use CAP_STRENGTHS as the only signal of relative strength.\n- If a KSF is not clearly related to CAP_STRENGTHS, mark Current Capability as “Weak/Unclear” and briefly explain why.\n- Link Implications explicitly to CEO_PROFILE where helpful (e.g., “given CAPITAL = tight…”, “for REGION = APAC…”).\n- Use a Markdown table for the main analysis.\n- Range 400-600 words in total.\n</rules>"
+        }
+      },
+      "id": "4198a19d-7e04-4cec-b0d1-1e40c940931f",
+      "name": "P10 Capability Gap Analysis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -12976,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p10-assign-orig",
+              "name": "outputoriginal",
+              "value": "={{ $('P10 Capability Gap Analysis').first().json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "p10-assign-rev",
+              "name": "outputrevised",
+              "value": "={{ $('P10 Reviser').isExecuted ? $('P10 Reviser').first().json.output : null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "206ccf85-6e4d-400b-961e-70bfad6bffe2",
+      "name": "P10 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -12672,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Please evaluate this to score:\n\n{{ $json.outputrevised ? $json.outputrevised : $json.outputoriginal }}",
+        "options": {
+          "systemMessage": "You are a QA analyst. Evaluate the P10 Capability Gap Analysis. Return ONLY valid JSON.\n\n<dimensions>\n\ncompleteness: TRUE if every KSF from P08 appears exactly once in the table.\nlogic: TRUE if Current Capability and Gap Severity follow logically from CAP_STRENGTHS, GROWTH_FOCUS, RISK, CAPITAL, and the 3‑year success definition (SUCCESS_3Y_TEXT or, if empty, SUCCESS_3Y_BUTTON + GROWTH_FOCUS).\nclarity: TRUE if Strategic Implications and the summary bullets are concise and understandable for a CEO.\nceo_alignment: TRUE if the analysis clearly connects at least two points to CEO_PROFILE (e.g., explicit mentions of REGION, CHANNEL, CAPITAL, or SUCCESS_3Y).\n</dimensions>\n<pass_rule>\noverall_pass = true ONLY IF all four dimensions are TRUE.\nIf overall_pass = false, set lowest_dimension to the first failing dimension and lowest_reason to a short explanation.\n</pass_rule>\n\n<output>\n{\n\"completeness\": true,\n\"logic\": true,\n\"clarity\": true,\n\"ceo_alignment\": true,\n\"overall_pass\": false,\n\"lowest_dimension\": \"\",\n\"lowest_reason\": \"\"\n}"
+        }
+      },
+      "id": "2fe5d0b9-a06e-4cd2-bae1-9562acb823d4",
+      "name": "P10 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -12528,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "p10-cond-pass",
+              "leftValue": "={{$json.output}}",
+              "rightValue": "overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a83022c2-2dfb-4a83-ba78-26469fc89179",
+      "name": "P10 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -12256,
+        3344
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p10-assign-final",
+              "name": "p10finaltext",
+              "value": "={{ $('P10 Reviser').isExecuted ? $('P10 Reviser').first().json.output : $('P10 Capability Gap Analysis').first().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a9687215-f3fa-49a8-bc3e-0c52511357d4",
+      "name": "P10 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -12048,
+        3184
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p10-assign-retry",
+              "name": "retry_p10",
+              "value": "={{ $json.retry_p10 ? $json.retry_p10 + 1 : 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2c6142c7-7abc-499c-aace-83b5acefc8d8",
+      "name": "P10 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -12640,
+        3536
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "p10-cond-limit",
+              "leftValue": "={{$json.retry_p10}}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a5f7ba6a-60d6-4041-9a6b-4dae6be805bd",
+      "name": "P10 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -12480,
+        3536
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Here is the QA feedback on P10 and the original draft. Please revise the analysis.\n\nQA_FEEDBACK:\n{{ $('P10 Scorer').first().json.output }}\n\nORIGINAL_P10:\n{{ $('P10 Newest Output').first().json.outputrevised ? $('P10 Newest Output').first().json.outputrevised : $('P10 Capability Gap Analysis').first().json.output }}\n\nRewrite P10, fixing only the issues identified in QA_FEEDBACK. Keep the structure (table + bullets) the same.",
+        "options": {
+          "systemMessage": "You are the senior consultant who wrote the original P10. A QA reviewer has identified weaknesses.\n\n<task>\nRevise the Capability Gap Analysis to address ONLY the failing dimensions from QA_FEEDBACK. Preserve all content that was assessed as correct.\n</task>\n\n<rules>\n- Keep the Markdown table and bullet format.\n- Improve completeness, logic, clarity, or ceo_alignment only where they were flagged.\n- Ensure any added or modified references to REGION, CHANNEL, CAPITAL, or SUCCESS_3Y are consistent with CEO_PROFILE.\n- Add a short “Revisions Made” note at the end, explaining what you changed.\n- Range 400-600 words in total.\n</rules>"
+        }
+      },
+      "id": "1a8283e2-e2d3-490c-99ac-69da5eba76ce",
+      "name": "P10 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -12320,
+        3536
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p10-assign-ro",
+              "name": "outputrevised",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cf1a5ac6-7c8c-4d13-8ed4-07d66e25b178",
+      "name": "P10 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -12048,
+        3536
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "62bc04f2-329c-49c2-b5aa-ebbc555d8b94",
+      "name": "P10 Writer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -12976,
+        3504
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "1fce03cd-83eb-49cc-b9eb-a1f39a2d246a",
+      "name": "P10 Scorer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -12512,
+        3184
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "9c86a40f-5c47-43a0-817a-84dc0cbd692f",
+      "name": "P10 Reviser Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -12320,
+        3744
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Using P09 {{ $('P09 Save Text').item.json.p09_final_text }}, \nP10 {{ $('P10 Save Text').item.json.p10_final_text }}, , \nP06 {{ $('P06 Save Text').item.json.p06_final_text }}, \nP07{{ $('P07 Save Text1').item.json.p07_final_text }} \nand the CEO profile, develop 3 distinct strategic options for the business.\n\nInputs:\n\nP10 Capability Gaps: [Context Attached]\nP06 Five Forces: [Context Attached]\nP07 Profit Pools: [Context Attached]\nCEO_PROFILE JSON from HITL checkpoint 2 (HITL‑2 CEO screen): [Context Attached]\nEach option must be clearly linked to the CEO’s preferences and constraints.\nRange 400-600 words in total ",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant.\n\n<inputs>\n- P10: Capability gaps.\n- P06: Industry forces.\n- P07: Profit pools.\n- P09\n- CEO_PROFILE (buttons + optional SUCCESS_3Y_TEXT) derived from the HITL‑2 CEO screen.\n</inputs>\n\n<task>\nPropose exactly 3 strategic options. For each option, provide:\n- Option Name.\n- Strategic Rationale: how it uses industry forces, targets specific profit pools, and responds to the main capability gaps.\n- Trade‑offs: what is deprioritised or sacrificed, especially given RISK and CAPITAL.\n- CEO Fit: why this option fits the CEO_PROFILE, explicitly referencing GROWTH_FOCUS, REGION, CHANNEL, CAP_STRENGTHS, and the 3‑year success definition (SUCCESS_3Y_TEXT if present, otherwise SUCCESS_3Y_BUTTON/GROWTH_FOCUS).\n</task>\n\n<rules>\n- Ensure options are meaningfully different (e.g., DTC‑led, partner‑led, licensing/IP‑led).\n- Each option should emphasise a different combination of profit pools from P07.\n- Do not propose options that clearly contradict CAPITAL or RISK choices in CEO_PROFILE.\n- Make the wording clear enough that a CEO can understand and choose between options.\n- Range 400-600 words in total for all 3 options combined.\n</rules>"
+        }
+      },
+      "id": "7fbd6f42-0900-4d47-88b3-02f52a1454a8",
+      "name": "P11 Strategic Options",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -11888,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p11-assign-orig",
+              "name": "outputoriginal",
+              "value": "={{ $('P11 Strategic Options').first().json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "p11-assign-rev",
+              "name": "outputrevised",
+              "value": "={{ $('P11 Reviser').isExecuted ? $('P11 Reviser').first().json.output : null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4f717763-ea12-4e39-a7aa-22c4c65ea42c",
+      "name": "P11 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -11600,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Please evaluate this to score:\n\n{{ $json.outputrevised ? $json.outputrevised : $json.outputoriginal }}",
+        "options": {
+          "systemMessage": "You are a QA analyst. Evaluate the P11 Strategic Options. Return ONLY valid JSON.\n\n<dimensions>\n\ncount: TRUE if there are exactly 3 options.\ndistinctiveness: TRUE if the 3 options are clearly different strategic directions, not minor variations.\nprofit_pool_link: TRUE if each option clearly links to at least one specific profit pool from P07.\nceo_alignment: TRUE if each option clearly references the CEO_PROFILE (e.g., GROWTH_FOCUS, REGION, CHANNEL, CAPITAL, CAP_STRENGTHS, or SUCCESS_3Y).\nfeasibility: TRUE if none of the options obviously contradict the capability gaps P10 or the capital/risk constraints in CEO_PROFILE.\n</dimensions>\n<pass_rule>\noverall_pass = true ONLY IF all five dimensions are TRUE.\nIf overall_pass = false, set lowest_dimension to the first failing dimension and lowest_reason to a short explanation.\n</pass_rule>\n\n<output>\n{\n\"count\": true,\n\"distinctiveness\": true,\n\"profit_pool_link\": true,\n\"ceo_alignment\": true,\n\"feasibility\": true,\n\"overall_pass\": false,\n\"lowest_dimension\": \"\",\n\"lowest_reason\": \"\"\n}"
+        }
+      },
+      "id": "2d91f998-2dff-4def-9570-5090ee30a526",
+      "name": "P11 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -11456,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "p11-cond-pass",
+              "leftValue": "={{$json.output}}",
+              "rightValue": "overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "245764b8-6dda-40aa-a2fc-d082da458a9b",
+      "name": "P11 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -11184,
+        3344
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p11-assign-final",
+              "name": "p11finaltext",
+              "value": "={{ $('P11 Reviser').isExecuted ? $('P11 Reviser').first().json.output : $('P11 Strategic Options').first().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b33a1778-a8ca-4ea0-bfe8-48879a1da7d1",
+      "name": "P11 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -11072,
+        3184
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p11-assign-retry",
+              "name": "retry_p11",
+              "value": "={{ $json.retry_p11 ? $json.retry_p11 + 1 : 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2fd166d9-25d9-4d34-aea8-994db7a0ba62",
+      "name": "P11 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -11568,
+        3552
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "p11-cond-limit",
+              "leftValue": "={{$json.retry_p11}}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "faed0625-7ca0-4a51-a169-8b7c5a190263",
+      "name": "P11 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -11424,
+        3552
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Here is the QA feedback on P11 and the original strategic options. Please revise.\n\nQA_FEEDBACK:\n{{ $('P11 Scorer').first().json.output }}\n\nORIGINAL_P11:\n{{ $('P11 Newest Output').first().json.outputrevised ? $('P11 Newest Output').first().json.outputrevised : $('P11 Strategic Options').first().json.output }}\n\nRewrite P11, fixing only the issues raised in QA_FEEDBACK. Keep the 3‑option structure.",
+        "options": {
+          "systemMessage": "You are the consultant who wrote the original P11. A QA reviewer has identified problems.\n\n<task>\nRevise the 3 strategic options, addressing ONLY the failing dimensions from QA_FEEDBACK (e.g., distinctiveness, ceo_alignment, or feasibility).\n</task>\n\n<rules>\n- Maintain three options and their high‑level intent.\n- Make differences between options clearer if distinctiveness failed.\n- Strengthen explicit links to profit pools and CEO_PROFILE where needed (e.g., reference REGION, CHANNEL, CAPITAL, CAP_STRENGTHS, SUCCESS_3Y).\n- Add a short “Revisions Made” note at the end.\n- P10: Capability gaps.\n</rules>"
+        }
+      },
+      "id": "de63ce29-3772-433e-a0fe-a4f77e9630f0",
+      "name": "P11 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -11232,
+        3552
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p11-assign-ro",
+              "name": "outputrevised",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c5a9f4ae-48d0-4f4a-81c9-2333f7d3a1ca",
+      "name": "P11 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10960,
+        3552
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "05ad8bc9-8e3b-4ccb-b08d-f98ff6a1d5f2",
+      "name": "P11 Writer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -11840,
+        3200
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "67c85038-2bc7-4938-a485-751d5eece512",
+      "name": "P11 Scorer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -11440,
+        3136
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "a53c9f06-8c6e-499d-9169-43d801edc350",
+      "name": "P11 Reviser Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -11232,
+        3776
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Using the CEO’s chosen strategic option from P11 {{ $('P11 Save Text').item.json.p11_final_text }},  and the CEO profile, write a concise Strategy Statement using the Collis & Rukstad framework (Objective, Scope, Advantage).\n\nInputs:\nP05, P09, P10\nCHOSEN_OPTION from P11: [Context Attached]\nCEO_PROFILE JSON from HITL checkpoint 2 (HITL‑2 CEO screen): [Context Attached]\nThe main Strategy Statement must be a single sentence of 35 words or less. Provide a short breakdown afterwards.",
+        "options": {
+          "systemMessage": "You are a senior strategy consultant.\n\n<inputs> - CHOSEN_OPTION from P11. - CEO_PROFILE from HITL checkpoint 2, including GROWTH_FOCUS, REGION, CHANNEL, CAPITAL, CAP_STRENGTHS, and SUCCESS_3Y (text or button). </inputs> <task> 1. Draft one Strategy Statement sentence (max 35 words) that clearly expresses: - Objective: the 3‑year success outcome, aligned with SUCCESS_3Y and GROWTH_FOCUS. - Scope: key customers, regions, and channels, aligned with REGION and CHANNEL and consistent with CHOSEN_OPTION. - Advantage: how the company will win, based on CAP_STRENGTHS and the key KSFs. 2. After the sentence, provide a short breakdown under three headings: “Objective”, “Scope”, “Advantage”, each as 1–2 short phrases. </task> <rules> - The main statement must not exceed 35 words. - Do not propose a strategy that contradicts RISK or CAPITAL choices. - Use clear, direct, CEO‑friendly language. - Keep the breakdown consistent with the main sentence. </rules>"
+        }
+      },
+      "id": "bc308082-e16d-4557-9b8a-347091fe87f8",
+      "name": "P12 Strategy Statement",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -10928,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p12-assign-orig",
+              "name": "outputoriginal",
+              "value": "={{ $('P12 Strategy Statement').first().json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "p12-assign-rev",
+              "name": "outputrevised",
+              "value": "={{ $('P12 Reviser').isExecuted ? $('P12 Reviser').first().json.output : null }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3a36b77f-b7a1-4384-8e9f-e3376b4dde11",
+      "name": "P12 Newest Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10656,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Please evaluate this to score:\n\n{{ $json.outputrevised ? $json.outputrevised : $json.outputoriginal }}",
+        "options": {
+          "systemMessage": "You are a QA analyst. Evaluate the P12 Strategy Statement. Return ONLY valid JSON.\n\n<dimensions> 1. length: TRUE if the main Strategy Statement sentence is 35 words or fewer. 2. structure: TRUE if Objective, Scope, and Advantage are all clearly identifiable in the statement and the breakdown. 3. alignment: TRUE if the statement is consistent with CHOSEN_OPTION and CEO_PROFILE (especially SUCCESS_3Y, REGION, CHANNEL, CAPITAL, and CAP_STRENGTHS). 4. clarity: TRUE if the statement is easy for a non‑technical CEO to understand. </dimensions>\n<pass_rule>\noverall_pass = true ONLY IF all four dimensions are TRUE.\n</pass_rule>\n\n<output> { \"length\": true, \"structure\": true, \"alignment\": true, \"clarity\": true, \"overall_pass\": false, \"lowest_dimension\": \"\", \"lowest_reason\": \"\" }"
+        }
+      },
+      "id": "3ee9a5b2-f7ee-4da5-882f-983ba5529ff6",
+      "name": "P12 Scorer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -10512,
+        3312
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "p12-cond-pass",
+              "leftValue": "={{$json.output}}",
+              "rightValue": "overall_pass\": true",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "274289da-7dc3-4191-aa60-a8fd0eac4271",
+      "name": "P12 IF Pass",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -10240,
+        3344
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p12-assign-final",
+              "name": "p12finaltext",
+              "value": "={{ $('P12 Reviser').isExecuted ? $('P12 Reviser').first().json.output : $('P12 Strategy Statement').first().json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "04006884-10ca-4eae-b1c9-ca4fa23366d1",
+      "name": "P12 Save Text",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -9824,
+        3216
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p12-assign-retry",
+              "name": "retry_p12",
+              "value": "={{ $json.retry_p12 ? $json.retry_p12 + 1 : 1 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e9859b00-35cf-49eb-9152-1a33309b5230",
+      "name": "P12 Increment Counter",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -10640,
+        3552
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "p12-cond-limit",
+              "leftValue": "={{$json.retry_p12}}",
+              "rightValue": 3,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0a39e6e8-0f5a-4318-b5b2-054d98e0597c",
+      "name": "P12 Check Limit",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -10496,
+        3552
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Here is the QA feedback on P12 and the original Strategy Statement. Please revise.\n\nQA_FEEDBACK:\n{{ $('P12 Scorer').first().json.output }}\n\nORIGINAL_P12:\n{{ $('P12 Newest Output').first().json.outputrevised ? $('P12 Newest Output').first().json.outputrevised : $('P12 Strategy Statement').first().json.output }}\n\nRewrite P12, fixing only the issues identified in QA_FEEDBACK. Keep the Strategy Statement to 35 words or less.",
+        "options": {
+          "systemMessage": "You are the consultant who wrote the original Strategy Statement. A QA reviewer has flagged weaknesses.\n\n<task> Rewrite the Strategy Statement to address ONLY the failing dimensions from QA_FEEDBACK, keeping it aligned with CHOSEN_OPTION and CEO_PROFILE. </task> <rules> - Strictly enforce the 35‑word limit for the main sentence. - Keep Objective, Scope, and Advantage explicit in the breakdown. - Do not change the fundamental direction of CHOSEN_OPTION. - Add a brief “Revisions Made” note. </rules>"
+        }
+      },
+      "id": "b1cfa02f-27ac-416f-8157-5f24c4ac758b",
+      "name": "P12 Reviser",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -10288,
+        3536
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p12-assign-ro",
+              "name": "outputrevised",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "db8638e2-8502-409e-b597-87d99a6ebb0c",
+      "name": "P12 Revised Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -9984,
+        3536
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "85e2e0cd-b892-4234-a2be-babbe61106bc",
+      "name": "P12 Writer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -10880,
+        3184
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "27b6b282-ca1d-4450-8ada-30969840e467",
+      "name": "P12 Scorer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -10512,
+        3168
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "id": "20ac6228-4dfc-487f-b78b-08f3fa4120e9",
+      "name": "P12 Reviser Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -10288,
+        3696
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Layer 3",
+        "height": 80,
+        "width": 150
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -13360,
+        3392
+      ],
+      "typeVersion": 1,
+      "id": "4edbc175-79cc-43b0-b734-e7508d905390",
+      "name": "Sticky Note5"
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Initialize Counters1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 Market Segmentation": {
+      "main": [
+        [
+          {
+            "node": "P02 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P02 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P02 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P02 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P03 Competitive Landscape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P02 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P02 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P02 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 Competitive Landscape": {
+      "main": [
+        [
+          {
+            "node": "P03 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P03 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P03 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P03 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P04 Key Trends & Disruptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P03 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P03 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P03 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 Key Trends & Disruptions": {
+      "main": [
+        [
+          {
+            "node": "P04 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P04 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P04 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P04 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P05 Executive Synthesis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P04 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P04 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P04 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Executive Synthesis": {
+      "main": [
+        [
+          {
+            "node": "P05 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P05 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P05 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P05 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P06 Porter's Five Forces",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P05 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P05 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P05 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Counters1": {
+      "main": [
+        [
+          {
+            "node": "P01 Market Size & Growth1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 Market Size & Growth1": {
+      "main": [
+        [
+          {
+            "node": "P01 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P01 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P01 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P01 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P02 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P02 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P02 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P03 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P03 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P03 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P04 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P04 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P04 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P05 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P05 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P1 Revisor": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P01 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P1 Scorer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P01 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P1 Writer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P01 Market Size & Growth1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P02 Market Segmentation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P01 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P2 Writer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P02 Market Segmentation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P2 Scorer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P02 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P2 Revisor": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P02 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P3 Scorer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P03 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P3 Revisor": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P03 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P3 Writer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P03 Competitive Landscape",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P4 Revisor": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P04 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P4 Scorer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P04 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P4 Writer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P04 Key Trends & Disruptions",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P5 Writer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P05 Executive Synthesis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P5 Scorer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P05 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P5 Revisor": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P05 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P01 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P01 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P01 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P01 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P01 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P05 Save Text1": {
+      "main": [
+        []
+      ]
+    },
+    "P07 Save Text1": {
+      "main": [
+        [
+          {
+            "node": "P08 Key Success Factors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P1 Scorer1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P06 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P06 Porter's Five Forces",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P09 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P09 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P09 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P09 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P10 Capability Gap Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P09 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P09 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P09 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P09 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Executive Synthesis": {
+      "main": [
+        [
+          {
+            "node": "P09 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P08 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P08 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P08 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P08 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P09 Executive Synthesis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P08 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P08 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P08 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P08 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Key Success Factors": {
+      "main": [
+        [
+          {
+            "node": "P08 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P07 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P07 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P07 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P07 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P07 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P07 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P07 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P07 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P07 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P07 Save Text1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P07 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P07 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P07 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P07 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P07 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P07 Profit Pool Analysis": {
+      "main": [
+        [
+          {
+            "node": "P07 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P06 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P06 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P06 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P06 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P07 Profit Pool Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P06 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P06 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P06 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P06 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P06 Porter's Five Forces": {
+      "main": [
+        [
+          {
+            "node": "P06 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P6 Revisor": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P06 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P7 Writer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P07 Profit Pool Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P7 Scorer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P07 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P7 Revisor": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P07 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P08 Key Success Factors",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Scorer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P08 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P08 Reviser Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P08 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Reviser Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P09 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P09 Executive Synthesis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P09 Scorer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P09 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Step 1 - Toy Research (This Year)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 1 - Toy Research (This Year)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 2 - Toy Research (Last Year)1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 3 - Final Step1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Step 4 - Generate Report1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking Approval1": {
+      "main": [
+        [
+          {
+            "node": "Step 2 - Toy Research (Last Year)1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Step 1 - Toy Research (This Year)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking Approval2": {
+      "main": [
+        [
+          {
+            "node": "Step 3 - Final Step1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Step 2 - Toy Research (Last Year)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking Approval3": {
+      "main": [
+        [
+          {
+            "node": "Step 4 - Generate Report1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Step 3 - Final Step1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Checking Approval2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Checking Approval1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Checking Approval3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Capability Gap Analysis": {
+      "main": [
+        [
+          {
+            "node": "P10 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P10 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P10 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P10 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P10 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P11 Strategic Options",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P10 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P10 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P10 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P10 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P10 Capability Gap Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Scorer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P10 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P10 Reviser Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P10 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Strategic Options": {
+      "main": [
+        [
+          {
+            "node": "P11 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P11 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P11 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P11 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P11 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Save Text": {
+      "main": [
+        [
+          {
+            "node": "P12 Strategy Statement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P11 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P11 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P11 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P11 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P11 Strategic Options",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Scorer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P11 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P11 Reviser Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P11 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Strategy Statement": {
+      "main": [
+        [
+          {
+            "node": "P12 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Newest Output": {
+      "main": [
+        [
+          {
+            "node": "P12 Scorer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Scorer": {
+      "main": [
+        [
+          {
+            "node": "P12 IF Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 IF Pass": {
+      "main": [
+        [
+          {
+            "node": "P12 Save Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "P12 Increment Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Increment Counter": {
+      "main": [
+        [
+          {
+            "node": "P12 Check Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Check Limit": {
+      "main": [
+        [
+          {
+            "node": "P12 Reviser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Reviser": {
+      "main": [
+        [
+          {
+            "node": "P12 Revised Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Revised Output": {
+      "main": [
+        [
+          {
+            "node": "P12 Newest Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P12 Strategy Statement",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Scorer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P12 Scorer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "P12 Reviser Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "P12 Reviser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Start": [
+      {}
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0226d54fd36042cefb08a7f7bcf62eab8366e0f83aa5544ec69e76cc5e679426"
+  }
+}
