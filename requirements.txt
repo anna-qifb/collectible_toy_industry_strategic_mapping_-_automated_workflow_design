@@ -1,4 +1,6 @@
+# requirements.txt (minimal)
 streamlit
-pandas
 plotly
-openpyxl
+requests
+pandas   # only used for small dataframe → optional but kept
+Bash
