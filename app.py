@@ -60,7 +60,7 @@ with st.sidebar:
             if r.status_code in (200, 202):
                 st.success(f"✅ Workflow triggered • HTTP {r.status_code}")
                 st.session_state.last_trigger = datetime.now().strftime("%H:%M:%S JST")
-                st.session_state.hitl_scores = {"Industry Context": "PASS", "Structural Analysis": "PASS", "Strategy Outputs": "PASS"}
+                st.session_state.hitl_scores = {"Industry Context": "PASS", "Strategic Analysis": "PASS", "Company Strategy": "PASS"}
             else:
                 st.error(f"HTTP {r.status_code}")
         except Exception as e:
@@ -91,8 +91,8 @@ The collectible toy market is on an upward trajectory..."""
 # ====================== TABS ======================
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Industry Context",
-    "Structural Analysis",
-    "Strategy Outputs",
+    "Strategic Analysis",
+    "Company Strategy",
     "All Charts & Tables",
     "CEO Questionnaire Summary",
     "HITL Checkpoints"
@@ -125,7 +125,7 @@ with tab1:
     st.subheader("P05 Industry Context Report")
     st.markdown(data["p05_markdown"], unsafe_allow_html=True)
 
-# ====================== TAB 2: STRUCTURAL ANALYSIS ======================
+# ====================== TAB 2: STRATEGIC ANALYSIS ======================
 with tab2:
     st.subheader("P06 Porter’s Five Forces")
     fig_forces = px.bar(x=list(data["layer2"]["forces"].keys()), y=list(data["layer2"]["forces"].values()), title="Force Intensity")
@@ -151,10 +151,10 @@ with tab2:
         use_container_width=True
     )
    
-    st.subheader("P05 Structural Analysis Report")
+    st.subheader("P05 Strategic Analysis Report")
     st.markdown(data["p05_markdown"], unsafe_allow_html=True)
 
-# ====================== TAB 3: STRATEGY OUTPUTS ======================
+# ====================== TAB 3: COMPANY STRATEGY ======================
 with tab3:
     st.subheader("P10 Capability Gap Analysis")
     st.dataframe(data["p10_gap"], use_container_width=True)
@@ -166,7 +166,7 @@ with tab3:
     st.subheader("P12 Strategy Statement")
     st.markdown(f"> **{data['p12_statement']}**")
    
-    st.subheader("P05 Strategy Outputs Report")
+    st.subheader("P05 Company Strategy Report")
     st.markdown(data["p05_markdown"], unsafe_allow_html=True)
 
 # ====================== TAB 4: ALL CHARTS & TABLES ======================
