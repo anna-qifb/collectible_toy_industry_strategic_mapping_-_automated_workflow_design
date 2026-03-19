@@ -11,7 +11,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="Collectible Toy Strategy AI", layout="wide", page_icon="🎮")
 st.title("🎮 Collectible Toy Industry – Full Agentic Strategy Dashboard")
-st.caption("Strategic Development Process • CEO Questionnaire • n8n Live Trigger • PDF Summary")
+st.caption("Strategy Development Process • CEO Questionnaire • n8n Live Trigger • PDF Summary")
 
 # ====================== SIDEBAR: FULL CEO QUESTIONNAIRE ======================
 with st.sidebar:
