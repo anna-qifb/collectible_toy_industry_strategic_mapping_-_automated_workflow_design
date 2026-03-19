@@ -11,7 +11,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="Collectible Toy Strategy AI", layout="wide", page_icon="🎮")
 st.title("🎮 Collectible Toy Industry – Full Agentic Strategy Dashboard")
-st.caption("P01–P12 visualized • CEO Questionnaire (MASTER Excel) • n8n 18032026.json trigger • Matches Sample P05 PDF")
+st.caption("Strategic Development Process • CEO Questionnaire • n8n Live Trigger • PDF Summary")
 
 # ====================== SIDEBAR: FULL CEO QUESTIONNAIRE ======================
 with st.sidebar:
@@ -229,16 +229,16 @@ with tab6:
         st.download_button("Download Full PDF Report", buffer, "Full_Strategy_Report.pdf", "application/pdf")
 
 # ====================== P05 SECTION PDF (Industry Context) ======================
-if st.button("📄 Download P05 Industry Context Report PDF"):
+if st.button("📄 Download PDF"):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4)
     styles = getSampleStyleSheet()
     elements = []
-    elements.append(Paragraph("P05 Industry Context Report", styles['Title']))
+    elements.append(Paragraph("Download Report", styles['Title']))
     elements.append(Spacer(1, 12))
     elements.append(Paragraph(data["p05_markdown"], styles['Normal']))
     doc.build(elements)
     buffer.seek(0)
-    st.download_button("Download P05 Industry Context Report PDF", buffer, "P05_Industry_Context_Report.pdf", "application/pdf")
+    st.download_button("Download PDF Report", buffer, "Industry_Context_Report.pdf", "application/pdf")
 
 st.caption("Dashboard matches n8n 18032026.json workflow + MASTER Excel prompts • All layers visualized")
