@@ -10,7 +10,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="Collectible Toy Strategy AI", layout="wide", page_icon="🎮")
-st.title("🎮 Collectible Toy Industry – Full Agentic Strategy Dashboard")
+st.title("🎮 Collectible Toy Industry – Strategy Dashboard")
 st.caption("Strategy Development Process • CEO Questionnaire • n8n Live Trigger • PDF Summary")
 
 # ====================== SIDEBAR: FULL CEO QUESTIONNAIRE ======================
@@ -93,7 +93,7 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Industry Context",
     "Strategic Analysis",
     "Company Strategy",
-    "All Charts & Tables",
+    "Key Charts",
     "CEO Questionnaire Summary",
     "HITL Checkpoints"
 ])
@@ -144,9 +144,9 @@ with tab2:
     st.subheader("P08 Key Success Factors")
     st.dataframe(
         data["p08_ksf"].style.apply(
-            lambda x: ['background-color: lightgreen' if v == 'Low' else 
-                       'background-color: orange' if v == 'Medium' else 
-                       'background-color: lightcoral' for v in x], subset=["Gap"], axis=1
+            lambda x: ['background-color: lightcoral' if v == 'Low' else 
+                       'background-color: yellow' if v == 'Medium' else 
+                       'background-color: lightgreen' for v in x], subset=["Gap"], axis=1
         ), 
         use_container_width=True
     )
@@ -169,15 +169,15 @@ with tab3:
     st.subheader("P05 Company Strategy Report")
     st.markdown(data["p05_markdown"], unsafe_allow_html=True)
 
-# ====================== TAB 4: ALL CHARTS & TABLES ======================
+# ====================== TAB 4: KEY CHARTS ======================
 with tab4:
-    st.subheader("All Charts & Tables")
+    st.subheader("Key Charts")
     years = list(range(2024, 2031))
     growth = [30.5 * (1 + 0.082)**i for i in range(7)]
     fig_growth = px.line(x=years, y=growth, markers=True, title="Market Projection 2024–2030")
     st.plotly_chart(fig_growth, use_container_width=True)
    
-    st.subheader("P05 All Charts Report")
+    st.subheader("P05 Key Charts")
     st.markdown(data["p05_markdown"], unsafe_allow_html=True)
 
 # ====================== TAB 5: CEO QUESTIONNAIRE SUMMARY ======================
@@ -241,4 +241,4 @@ if st.button("📄 Download PDF"):
     buffer.seek(0)
     st.download_button("Download PDF Report", buffer, "Industry_Context_Report.pdf", "application/pdf")
 
-st.caption("Dashboard matches n8n 18032026.json workflow + MASTER Excel prompts • All layers visualized")
+st.caption("Dashboard matches n8n agentic chaining workflow • Strategy Development Process")
