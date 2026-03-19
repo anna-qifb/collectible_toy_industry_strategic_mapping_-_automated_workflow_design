@@ -84,7 +84,7 @@ data = {
 - **Competitive Landscape –** Major players like Hasbro, Funko, and LEGO dominate (Source: IBISWorld, 2023).
 - **Key Trends & Disruptions –** Rise of adult collectors and technology integration (Source: Grand View Research, 2024).
 
-# Detailed Industry Report
+# Detailed Report
 The collectible toy market is on an upward trajectory..."""
 }
 
