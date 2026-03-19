@@ -1,15 +1,13 @@
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
 import pandas as pd
 import json
 import requests
 from datetime import datetime
 from io import BytesIO
 from reportlab.lib.pagesizes import A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
 
 st.set_page_config(page_title="Collectible Toy Strategy AI", layout="wide", page_icon="🎮")
 st.title("🎮 Collectible Toy Industry – Full Agentic Strategy Dashboard")
@@ -41,10 +39,10 @@ with st.sidebar:
     q11 = st.selectbox("Q11. Primary strategic focus next 3 years?", 
                        ["1. Defend core", "2. Balance core + adjacencies", "3. Expand new segments"])
     q12 = st.text_area("Q12. In your own words: success in 3 years?", value="Reach #1 in APAC kidult collectibles via DTC")
-    
+   
     st.divider()
     webhook_url = st.text_input("n8n Webhook URL", value="https://your-n8n/webhook/collectible-toy-strategy")
-    
+   
     if st.button("🚀 Trigger Full n8n Workflow (P01→P12)", type="primary", use_container_width=True):
         payload = {
             "MCQ_Answers": f"Q1:{q1}|Q2:{q2}|Q3:{q3}|Q4:{q4}|Q5:{q5}|Q6:{q6}|Q7:{q7}|Q8:{q8}|Q9:{q9}|Q10:{q10}|Q11:{q11}|Q12:{q12}",
@@ -62,10 +60,7 @@ with st.sidebar:
             if r.status_code in (200, 202):
                 st.success(f"✅ Workflow triggered • HTTP {r.status_code}")
                 st.session_state.last_trigger = datetime.now().strftime("%H:%M:%S JST")
-                # Mock HITL scores after trigger
-                st.session_state.hitl_scores = {
-                    "Layer 1": "PASS", "Layer 2": "PASS", "Layer 3": "PASS"
-                }
+                st.session_state.hitl_scores = {"Industry Context": "PASS", "Structural Analysis": "PASS", "Strategy Outputs": "PASS"}
             else:
                 st.error(f"HTTP {r.status_code}")
         except Exception as e:
@@ -93,10 +88,10 @@ The collectible toy market is on an upward trajectory..."""
 
 # ====================== TABS ======================
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "Industry Context", 
-    "Structural Analysis", 
-    "Strategy Outputs", 
-    "All Charts & Tables", 
+    "Industry Context",
+    "Structural Analysis",
+    "Strategy Outputs",
+    "All Charts & Tables",
     "CEO Questionnaire Summary",
     "HITL Checkpoints"
 ])
@@ -107,19 +102,19 @@ with tab1:
     fig_p01 = px.pie(data["p01_table"], names="Region", values="Share", title="Regional Market Share")
     st.plotly_chart(fig_p01, use_container_width=True)
     st.dataframe(data["p01_table"], use_container_width=True)
-    
+   
     st.subheader("P02 Demographic / Price / Categories")
     st.info("60% Adults 18-34 • Premium >$100: 25% • Blind Boxes: 45%")
-    
+   
     st.subheader("P03 Competitive Landscape")
     st.dataframe(pd.DataFrame({"Company":["Hasbro","Funko","LEGO"],"Revenue_B":[2.5,1.1,3.2]}), use_container_width=True)
-    
+   
     st.subheader("P04 Key Trends")
     trends = pd.DataFrame({"Trend": ["Adult Collectors", "AR Integration", "Sustainability"], "Impact": [9,8,7]})
     fig_p04 = px.scatter(trends, x="Trend", y="Impact", size="Impact", color="Impact", title="Trend vs Impact")
     st.plotly_chart(fig_p04, use_container_width=True)
-    
-    st.subheader("P05 Detailed Industry Report")
+   
+    st.subheader("Detailed Industry Report")
     st.markdown(data["p05_markdown"], unsafe_allow_html=True)
 
 # ====================== TAB 2: STRUCTURAL ANALYSIS ======================
@@ -127,34 +122,44 @@ with tab2:
     st.subheader("P06 Porter’s Five Forces")
     fig_forces = px.bar(x=list(data["layer2"]["forces"].keys()), y=list(data["layer2"]["forces"].values()), title="Force Intensity")
     st.plotly_chart(fig_forces, use_container_width=True)
-    
+   
     st.subheader("P07 Profit Pools")
-    color_map = {"High": "green", "Med-High": "orange", "Low": "red"}
-    fig_p07 = px.bar(data["p07_pools"], x="Stage", y="Margin", color="Margin", color_discrete_map=color_map, title="Profit Pools")
-    st.plotly_chart(fig_p07, use_container_width=True)
-    
+    st.dataframe(
+        data["p07_pools"].style.apply(
+            lambda x: ['background-color: lightgreen' if v == 'High' else 
+                       'background-color: orange' if v == 'Med-High' else 
+                       'background-color: lightcoral' for v in x], axis=1
+        ), 
+        use_container_width=True
+    )
+   
     st.subheader("P08 Key Success Factors")
-    fig_p08 = px.bar(data["p08_ksf"], x="KSF", y="Gap", color="Gap", color_discrete_map=color_map, title="KSFs")
-    st.plotly_chart(fig_p08, use_container_width=True)
-    
+    st.dataframe(
+        data["p08_ksf"].style.apply(
+            lambda x: ['background-color: lightgreen' if v == 'Low' else 
+                       'background-color: orange' if v == 'Medium' else 
+                       'background-color: lightcoral' for v in x], axis=1
+        ), 
+        use_container_width=True
+    )
+   
     st.subheader("P09 Executive Synthesis")
     st.info("Full synthesis generated by n8n – see PDF download below")
 
 # ====================== TAB 3: STRATEGY OUTPUTS ======================
 with tab3:
     st.subheader("P10 Capability Gap Analysis")
-    # 2x2 Matrix
-    fig_matrix = px.scatter(data["p10_gap"], x="Current", y="Severity", color="Severity", 
-                            color_discrete_map={"High":"red","Medium":"orange","Low":"green"},
-                            title="P10 2x2 Capability Gap Matrix")
-    fig_matrix.update_traces(marker=dict(size=20))
-    st.plotly_chart(fig_matrix, use_container_width=True)
+    # Better chart: Horizontal bar by Severity (clean, executive-friendly)
+    fig_p10 = px.bar(data["p10_gap"], x="Severity", y="KSF", orientation='h', color="Severity",
+                     color_discrete_map={"High":"red", "Medium":"orange", "Low":"green"},
+                     title="Capability Gap Severity by KSF")
+    st.plotly_chart(fig_p10, use_container_width=True)
     st.dataframe(data["p10_gap"], use_container_width=True)
-    
+   
     st.subheader("P11 Strategic Options")
     for opt in data["p11_options"]:
         st.success(opt)
-    
+   
     st.subheader("P12 Strategy Statement")
     st.markdown(f"> **{data['p12_statement']}**")
 
@@ -174,13 +179,16 @@ with tab5:
         "Q7": q7, "Q8": q8, "Q9": q9, "Q10": q10, "Q11": q11, "Q12": q12
     }
     st.json(answers)
-    
-    st.subheader("Analysis")
+   
+    st.subheader("Gap Analysis vs P01–P12 Results")
     st.markdown("""
-    **Objectives:** Strong emphasis on aggressive growth and APAC focus.  
-    **Market Trends:** Aligns with adult kidult surge and DTC shift.  
-    **Future Outlook:** High potential in premium segments with DTC channel; risk from capital constraints.  
-    Recommended path: DTC-led expansion in APAC for 25% share by 2028.
+    **Key Gaps Identified:**
+    - CEO wants **aggressive growth in APAC via DTC** (Q1, Q3, Q4) → P01 shows 32% APAC share (good alignment) but P10 flags **High gap in Digital DTC**.
+    - P07 confirms DTC is a **High-margin pool** → strong opportunity.
+    - P11 Option 1 (DTC-Led Growth) matches CEO preference perfectly.
+    - Risk: P10 High gap in Digital DTC could block 2028 target if not addressed.
+    
+    **Recommendation:** Close the Digital DTC gap immediately to unlock P07 high-margin pool and deliver CEO’s 25% APAC share goal.
     """)
 
 # ====================== TAB 6: HITL CHECKPOINTS ======================
@@ -192,9 +200,23 @@ with tab6:
             st.metric(layer, f"{color} {score}")
     else:
         st.info("Trigger n8n workflow above to see checkpoint scores")
+    
+    # PDF button in HITL tab
+    if st.button("📄 Download Full PDF Report"):
+        # Same PDF as before but with updated button text
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        styles = getSampleStyleSheet()
+        elements = []
+        elements.append(Paragraph("Detailed Industry Context Document", styles['Title']))
+        elements.append(Spacer(1, 12))
+        elements.append(Paragraph(data["p05_markdown"], styles['Normal']))
+        doc.build(elements)
+        buffer.seek(0)
+        st.download_button("Download Full PDF Report", buffer, "Full_Strategy_Report.pdf", "application/pdf")
 
-# ====================== PDF DOWNLOAD ======================
-def generate_pdf():
+# ====================== PDF DOWNLOAD (P05 section) ======================
+if st.button("📄 Download Detailed Industry Report PDF"):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4)
     styles = getSampleStyleSheet()
@@ -204,10 +226,6 @@ def generate_pdf():
     elements.append(Paragraph(data["p05_markdown"], styles['Normal']))
     doc.build(elements)
     buffer.seek(0)
-    return buffer
-
-if st.button("📄 Download Full P05 PDF"):
-    pdf = generate_pdf()
-    st.download_button("Download PDF", pdf, "Detailed_Industry_Context_Document.pdf", "application/pdf")
+    st.download_button("Download Detailed Industry Report PDF", buffer, "Detailed_Industry_Report.pdf", "application/pdf")
 
 st.caption("Dashboard matches n8n 18032026.json workflow + MASTER Excel prompts • All layers visualized")
