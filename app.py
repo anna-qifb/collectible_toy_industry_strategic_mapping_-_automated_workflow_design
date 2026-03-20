@@ -10,8 +10,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="Collectible Toy Strategy AI", layout="wide", page_icon="🎮")
-st.title("🎮 Collectible Toy Industry – Strategy Dashboard")
-st.caption("Strategy Development Process • CEO Questionnaire • n8n Live Trigger • PDF Summary")
+st.title("🎮 Collectible Toy Industry – Full Agentic Strategy Dashboard")
+st.caption("P01–P12 visualized • CEO Questionnaire (MASTER Excel) • n8n 18032026.json trigger • Matches Sample P05 PDF")
 
 # ====================== SIDEBAR: FULL CEO QUESTIONNAIRE ======================
 with st.sidebar:
@@ -60,7 +60,7 @@ with st.sidebar:
             if r.status_code in (200, 202):
                 st.success(f"✅ Workflow triggered • HTTP {r.status_code}")
                 st.session_state.last_trigger = datetime.now().strftime("%H:%M:%S JST")
-                st.session_state.hitl_scores = {"Industry Context": "PASS", "Strategic Analysis": "PASS", "Company Strategy": "PASS"}
+                st.session_state.hitl_scores = {"Industry Context": "PASS", "Structural Analysis": "PASS", "Strategy Outputs": "PASS"}
             else:
                 st.error(f"HTTP {r.status_code}")
         except Exception as e:
@@ -78,22 +78,22 @@ data = {
     "p10_gap": pd.DataFrame({"KSF":["Brand IP","Digital DTC","Supply Chain"],"Current":["Strong","Weak","Adequate"],"Severity":["Low","High","Medium"]}),
     "p11_options": ["DTC-Led Growth","APAC Licensing Play","Premium Statue Premiumization"],
     "p12_statement": "Reach 25% APAC kidult share by 2028 via DTC with fast IP incubation.",
-    "p05_markdown": """# Research Highlights
+    "full_p05": """# Research Highlights
 - **Market Size & Growth –** The global collectible toy market is valued at approximately $30.5 billion in 2024 (Source: Market Research Future, 2024).
 - **Key Market Segments –** Approximately 60% of collectible toy consumers are adults aged 18-34 (Source: Market Watch, 2024).
 - **Competitive Landscape –** Major players like Hasbro, Funko, and LEGO dominate (Source: IBISWorld, 2023).
 - **Key Trends & Disruptions –** Rise of adult collectors and technology integration (Source: Grand View Research, 2024).
 
-# Detailed Report
+# Detailed Industry Report
 The collectible toy market is on an upward trajectory..."""
 }
 
 # ====================== TABS ======================
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Industry Context",
-    "Strategic Analysis",
-    "Company Strategy",
-    "Key Charts",
+    "Structural Analysis",
+    "Strategy Outputs",
+    "All Charts & Tables",
     "CEO Questionnaire Summary",
     "HITL Checkpoints"
 ])
@@ -105,6 +105,12 @@ with tab1:
     st.plotly_chart(fig_p01, use_container_width=True)
     st.dataframe(data["p01_table"], use_container_width=True)
    
+    st.subheader("Market Projection 2024–2030")
+    years = list(range(2024, 2031))
+    growth = [30.5 * (1 + 0.082)**i for i in range(7)]
+    fig_growth = px.line(x=years, y=growth, markers=True, title="Global Collectible Toy Market Projection")
+    st.plotly_chart(fig_growth, use_container_width=True)
+   
     st.subheader("P02 Demographic / Price / Categories")
     p02_table = pd.DataFrame({
         "Aspect": ["Demographic", "Price Point", "Product Categories"],
@@ -115,7 +121,16 @@ with tab1:
     st.dataframe(p02_table, use_container_width=True)
    
     st.subheader("P03 Competitive Landscape")
-    st.dataframe(pd.DataFrame({"Company":["Hasbro","Funko","LEGO"],"Revenue (In US$ Billion)":[2.5,1.1,3.2]}), use_container_width=True)
+    p03_data = pd.DataFrame({
+        "Company": ["Funko", "Pop Mart", "Hasbro (Wizards of the Coast)", "Bandai Namco", "Hot Toys", 
+                    "MGA Entertainment", "LEGO", "Super7", "Good Smile Company", "Kotobukiya", 
+                    "Sideshow Collectibles", "McFarlane Toys"],
+        "HQ": ["USA", "China", "USA", "Japan", "Hong Kong", "USA", "Denmark", "USA", "Japan", "Japan", "USA", "USA"],
+        "Key Products": ["Pop! Vinyl & Loungefly", "Blind boxes (Molly, Skullpanda)", "D&D, Magic: The Gathering", "Gunpla, Tamashii Nations", "1/6 scale movie figures", "LOL Surprise, Bratz collectibles", "Star Wars minifigs & UCS sets", "Reaction & Ultimates figures", "Nendoroid & scale figures", "ARTFX statues & Bishoujo", "Premium movie statues", "Spawn & sports action figures"],
+        "Revenue (In US$ Billion)": [1.1, 1.0, 2.5, 1.55, 0.45, 1.2, 3.2, 0.12, 0.35, 0.28, 0.22, 0.65],
+        "Key Characteristics": ["Mass-market nostalgia leader with rapid releases", "Blind-box pioneer dominating Asia kidult segment", "IP powerhouse in trading cards & RPGs", "Model kits & anime figures with strong Japan loyalty", "Ultra-premium 1/6 scale for movie fans", "Affordable impulse collectibles for younger audience", "Iconic brick-building collectibles with huge adult fanbase", "Nostalgia-driven limited editions", "Anime & manga figure specialist", "High-end anime & game statues", "Cinema-quality movie collectibles", "Comic & sports figure specialist"]
+    })
+    st.dataframe(p03_data, use_container_width=True)
    
     st.subheader("P04 Key Trends")
     trends = pd.DataFrame({"Trend": ["Adult Collectors", "AR Integration", "Sustainability"], "Impact": [9,8,7]})
@@ -123,9 +138,9 @@ with tab1:
     st.plotly_chart(fig_p04, use_container_width=True)
    
     st.subheader("P05 Industry Context Report")
-    st.markdown(data["p05_markdown"], unsafe_allow_html=True)
+    st.markdown(data["full_p05"], unsafe_allow_html=True)
 
-# ====================== TAB 2: STRATEGIC ANALYSIS ======================
+# ====================== TAB 2: STRUCTURAL ANALYSIS ======================
 with tab2:
     st.subheader("P06 Porter’s Five Forces")
     fig_forces = px.bar(x=list(data["layer2"]["forces"].keys()), y=list(data["layer2"]["forces"].values()), title="Force Intensity")
@@ -144,17 +159,17 @@ with tab2:
     st.subheader("P08 Key Success Factors")
     st.dataframe(
         data["p08_ksf"].style.apply(
-            lambda x: ['background-color: lightcoral' if v == 'Low' else 
-                       'background-color: yellow' if v == 'Medium' else 
-                       'background-color: lightgreen' for v in x], subset=["Gap"], axis=1
+            lambda x: ['background-color: lightgreen' if v == 'Low' else 
+                       'background-color: orange' if v == 'Medium' else 
+                       'background-color: lightcoral' for v in x], subset=["Gap"], axis=1
         ), 
         use_container_width=True
     )
    
-    st.subheader("P05 Strategic Analysis Report")
-    st.markdown(data["p05_markdown"], unsafe_allow_html=True)
+    st.subheader("Structural Analysis Report")
+    st.markdown(data["full_p05"].split("# Detailed Industry Report")[1] if "#" in data["full_p05"] else data["full_p05"], unsafe_allow_html=True)
 
-# ====================== TAB 3: COMPANY STRATEGY ======================
+# ====================== TAB 3: STRATEGY OUTPUTS ======================
 with tab3:
     st.subheader("P10 Capability Gap Analysis")
     st.dataframe(data["p10_gap"], use_container_width=True)
@@ -166,19 +181,13 @@ with tab3:
     st.subheader("P12 Strategy Statement")
     st.markdown(f"> **{data['p12_statement']}**")
    
-    st.subheader("P05 Company Strategy Report")
-    st.markdown(data["p05_markdown"], unsafe_allow_html=True)
+    st.subheader("Strategy Outputs Report")
+    st.markdown(data["full_p05"].split("# Detailed Industry Report")[1] if "#" in data["full_p05"] else data["full_p05"], unsafe_allow_html=True)
 
-# ====================== TAB 4: KEY CHARTS ======================
+# ====================== TAB 4: ALL CHARTS & TABLES ======================
 with tab4:
-    st.subheader("Key Charts")
-    years = list(range(2024, 2031))
-    growth = [30.5 * (1 + 0.082)**i for i in range(7)]
-    fig_growth = px.line(x=years, y=growth, markers=True, title="Market Projection 2024–2030")
-    st.plotly_chart(fig_growth, use_container_width=True)
-   
-    st.subheader("P05 Key Charts")
-    st.markdown(data["p05_markdown"], unsafe_allow_html=True)
+    st.subheader("All Charts & Tables")
+    st.info("Market projection and key charts are now in the Industry Context tab")
 
 # ====================== TAB 5: CEO QUESTIONNAIRE SUMMARY ======================
 with tab5:
@@ -223,22 +232,22 @@ with tab6:
         elements = []
         elements.append(Paragraph("Full Strategy Report", styles['Title']))
         elements.append(Spacer(1, 12))
-        elements.append(Paragraph(data["p05_markdown"], styles['Normal']))
+        elements.append(Paragraph(data["full_p05"], styles['Normal']))
         doc.build(elements)
         buffer.seek(0)
         st.download_button("Download Full PDF Report", buffer, "Full_Strategy_Report.pdf", "application/pdf")
 
-# ====================== P05 SECTION PDF (Industry Context) ======================
-if st.button("📄 Download PDF"):
+# ====================== P05 SECTION PDF ======================
+if st.button("📄 Download P05 Industry Context Report PDF"):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4)
     styles = getSampleStyleSheet()
     elements = []
-    elements.append(Paragraph("Download Report", styles['Title']))
+    elements.append(Paragraph("P05 Industry Context Report", styles['Title']))
     elements.append(Spacer(1, 12))
-    elements.append(Paragraph(data["p05_markdown"], styles['Normal']))
+    elements.append(Paragraph(data["full_p05"], styles['Normal']))
     doc.build(elements)
     buffer.seek(0)
-    st.download_button("Download PDF Report", buffer, "Industry_Context_Report.pdf", "application/pdf")
+    st.download_button("Download P05 Industry Context Report PDF", buffer, "P05_Industry_Context_Report.pdf", "application/pdf")
 
-st.caption("Dashboard matches n8n agentic chaining workflow • Strategy Development Process")
+st.caption("Dashboard matches n8n 18032026.json workflow + MASTER Excel prompts • All layers visualized")
