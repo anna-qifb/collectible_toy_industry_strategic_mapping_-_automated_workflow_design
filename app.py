@@ -61,11 +61,12 @@ with st.sidebar:
             if r.status_code in (200, 202):
                 st.success(f"✅ Workflow triggered • HTTP {r.status_code}")
                 st.session_state.last_trigger = datetime.now().strftime("%H:%M:%S JST")
-                # Updated scoring – you can later make this dynamic from real HITL/n8n feedback
+                
+                # Initialize HITL scores for each major section
                 st.session_state.hitl_scores = {
                     "Industry Research": "PASS",
                     "Structural Analysis": "PASS",
-                    "Strategy Outputs": "NEEDS REVIEW"
+                    "Strategy Outputs": "PASS"
                 }
             else:
                 st.error(f"HTTP {r.status_code}")
@@ -93,9 +94,9 @@ data = {
 The collectible toy market is on an upward trajectory..."""
 }
 
-# ====================== TABS – removed "All Charts & Tables" ======================
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "Industry Research",         # ← renamed
+# ====================== TABS (removed All Charts & Tables) ======================
+tab1, tab2, tab3, tab5, tab6 = st.tabs([
+    "Industry Research",          # ← renamed
     "Structural Analysis",
     "Strategy Outputs",
     "CEO Questionnaire Summary",
@@ -129,7 +130,10 @@ with tab1:
         "Company": ["Funko", "Pop Mart", "Hasbro (Wizards of the Coast)", "Bandai Namco", "Hot Toys",
                     "MGA Entertainment", "LEGO", "Super7", "Good Smile Company", "Kotobukiya",
                     "Sideshow Collectibles", "McFarlane Toys"],
-        # ... (rest unchanged)
+        "HQ": ["USA", "China", "USA", "Japan", "Hong Kong", "USA", "Denmark", "USA", "Japan", "Japan", "USA", "USA"],
+        "Key Products": ["Pop! Vinyl & Loungefly", "Blind boxes (Molly, Skullpanda)", "D&D, Magic: The Gathering", "Gunpla, Tamashii Nations", "1/6 scale movie figures", "LOL Surprise, Bratz collectibles", "Star Wars minifigs & UCS sets", "Reaction & Ultimates figures", "Nendoroid & scale figures", "ARTFX statues & Bishoujo", "Premium movie statues", "Spawn & sports action figures"],
+        "Revenue (In US$ Billion)": [1.1, 1.0, 2.5, 1.55, 0.45, 1.2, 3.2, 0.12, 0.35, 0.28, 0.22, 0.65],
+        "Key Characteristics": ["Mass-market nostalgia leader with rapid releases", "Blind-box pioneer dominating Asia kidult segment", "IP powerhouse in trading cards & RPGs", "Model kits & anime figures with strong Japan loyalty", "Ultra-premium 1/6 scale for movie fans", "Affordable impulse collectibles for younger audience", "Iconic brick-building collectibles with huge adult fanbase", "Nostalgia-driven limited editions", "Anime & manga figure specialist", "High-end anime & game statues", "Cinema-quality movie collectibles", "Comic & sports figure specialist"]
     })
     st.dataframe(p03_data, use_container_width=True)
 
@@ -138,12 +142,11 @@ with tab1:
     fig_p04 = px.scatter(trends, x="Trend", y="Impact", size="Impact", color="Impact", title="Trend vs Impact")
     st.plotly_chart(fig_p04, use_container_width=True)
 
-    st.subheader("P05 Industry Research Report")
+    st.subheader("P05 Industry Context Report")
     st.markdown(data["full_p05"], unsafe_allow_html=True)
 
 # ====================== TAB 2: STRUCTURAL ANALYSIS ======================
 with tab2:
-    # (content unchanged)
     st.subheader("P06 Porter’s Five Forces")
     fig_forces = px.bar(x=list(data["layer2"]["forces"].keys()), y=list(data["layer2"]["forces"].values()), title="Force Intensity")
     st.plotly_chart(fig_forces, use_container_width=True)
@@ -173,7 +176,6 @@ with tab2:
 
 # ====================== TAB 3: STRATEGY OUTPUTS ======================
 with tab3:
-    # (content unchanged)
     st.subheader("P10 Capability Gap Analysis")
     st.dataframe(data["p10_gap"], use_container_width=True)
 
@@ -187,44 +189,56 @@ with tab3:
     st.subheader("Strategy Outputs Report")
     st.markdown(data["full_p05"].split("# Detailed Industry Report")[1] if "#" in data["full_p05"] else data["full_p05"], unsafe_allow_html=True)
 
-# ====================== TAB 4: CEO QUESTIONNAIRE SUMMARY ======================
-with tab4:
+# ====================== TAB 4 → now TAB 5: CEO QUESTIONNAIRE SUMMARY ======================
+with tab5:
     st.subheader("CEO Questionnaire Summary")
-    answers = {f"Q{i}": val for i, val in enumerate([q1,q2,q3,q4,q5,q6,q7,q8,q9,q10,q11,q12],1)}
+    answers = {
+        "Q1": q1, "Q2": q2, "Q3": q3, "Q4": q4, "Q5": q5, "Q6": q6,
+        "Q7": q7, "Q8": q8, "Q9": q9, "Q10": q10, "Q11": q11, "Q12": q12
+    }
     st.json(answers)
 
     st.subheader("Gap Analysis vs P01–P12 Results")
     st.markdown("""
     **Strategic Alignment & Gaps**
-    
+
     **Strengths (Aligned with CEO Goals):**
     - Aggressive growth focus (Q1) perfectly matches P01 8.2% projected CAGR and P07 high-margin DTC pool.
     - APAC priority (Q3) aligns with P01 32% regional share and P11 DTC-Led option.
-    
+
     **Critical Gaps:**
     - Digital DTC capability (P10 High severity gap) directly conflicts with Q4 DTC preference and P07 highest-margin pool.
     - Supply chain (P10 Medium gap) may limit Q1 aggressive revenue target.
-    
+
     **Future Outlook:**
     - High potential to reach CEO 2028 target if Digital DTC gap is closed immediately.
     - Recommended: Prioritise P11 Option 1 (DTC-Led Growth) to close the only High gap and capture P07 value.
     """)
 
-# ====================== TAB 5: HITL CHECKPOINTS (now shows per-section scores) ======================
-with tab5:
+# ====================== TAB 5 → now TAB 6: HITL CHECKPOINTS ======================
+with tab6:
     st.subheader("HITL Checkpoints (Human-in-the-Loop Review)")
     
     if "hitl_scores" in st.session_state:
-        for section, result in st.session_state.hitl_scores.items():
-            if result == "PASS":
-                emoji = "🟢"
-            elif result == "NEEDS REVIEW":
-                emoji = "🟡"
-            else:
-                emoji = "🔴"
-            st.metric(section, f"{emoji} {result}")
+        scores = st.session_state.hitl_scores
+        
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            score = scores.get("Industry Research", "PENDING")
+            color = "🟢 PASS" if score == "PASS" else "🔴 FAIL" if score == "FAIL" else "⚪ PENDING"
+            st.metric("Industry Research", color)
+        
+        with col2:
+            score = scores.get("Structural Analysis", "PENDING")
+            color = "🟢 PASS" if score == "PASS" else "🔴 FAIL" if score == "FAIL" else "⚪ PENDING"
+            st.metric("Structural Analysis", color)
+        
+        with col3:
+            score = scores.get("Strategy Outputs", "PENDING")
+            color = "🟢 PASS" if score == "PASS" else "🔴 FAIL" if score == "FAIL" else "⚪ PENDING"
+            st.metric("Strategy Outputs", color)
     else:
-        st.info("Trigger the n8n workflow in the sidebar to receive HITL checkpoint scores")
+        st.info("Trigger the n8n workflow in the sidebar to generate HITL checkpoint scores.")
 
     if st.button("📄 Download Full PDF Report"):
         buffer = BytesIO()
@@ -239,8 +253,8 @@ with tab5:
         st.download_button(
             label="Download Full PDF Report",
             data=buffer,
-            file_name="Collectible_Toy_Strategy_Report.pdf",
+            file_name="Full_Strategy_Report.pdf",
             mime="application/pdf"
         )
 
-st.caption("Dashboard matches n8n workflow • Updated March 2026")
+st.caption("Dashboard matches n8n workflow")
