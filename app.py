@@ -11,11 +11,11 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 st.set_page_config(page_title="Collectible Toy Strategy AI", layout="wide", page_icon="🎮")
 st.title("🎮 Collectible Toy Industry – Full Agentic Strategy Dashboard")
-st.caption("P01–P12 visualized • CEO Questionnaire (MASTER Excel) • n8n 18032026.json trigger • Matches Sample P05 PDF")
+st.caption("Strategy Development Process • CEO Questionnaire • n8n Live Trigger • PDF Report")
 
 # ====================== SIDEBAR: FULL CEO QUESTIONNAIRE ======================
 with st.sidebar:
-    st.header("CEO Questionnaire (MASTER-Agent-Chaining-RAW-Prompts.xlsx)")
+    st.header("CEO Questionnaire")
     q1 = st.selectbox("Q1. Over the next 3 years, main financial emphasis?", 
                       ["1. Aggressive growth in revenue", "2. Balanced growth and profit", "3. Profitability and cash first"])
     q2 = st.selectbox("Q2. Appetite for risk?", 
@@ -43,7 +43,7 @@ with st.sidebar:
     st.divider()
     webhook_url = st.text_input("n8n Webhook URL", value="https://your-n8n/webhook/collectible-toy-strategy")
    
-    if st.button("🚀 Trigger Full n8n Workflow (P01→P12)", type="primary", use_container_width=True):
+    if st.button("🚀 n8n Live Trigger", type="primary", use_container_width=True):
         payload = {
             "MCQ_Answers": f"Q1:{q1}|Q2:{q2}|Q3:{q3}|Q4:{q4}|Q5:{q5}|Q6:{q6}|Q7:{q7}|Q8:{q8}|Q9:{q9}|Q10:{q10}|Q11:{q11}|Q12:{q12}",
             "GROWTH_FOCUS": q1.split(".")[1].strip(),
@@ -237,17 +237,5 @@ with tab6:
         buffer.seek(0)
         st.download_button("Download Full PDF Report", buffer, "Full_Strategy_Report.pdf", "application/pdf")
 
-# ====================== P05 SECTION PDF ======================
-if st.button("📄 Download P05 Industry Context Report PDF"):
-    buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4)
-    styles = getSampleStyleSheet()
-    elements = []
-    elements.append(Paragraph("P05 Industry Context Report", styles['Title']))
-    elements.append(Spacer(1, 12))
-    elements.append(Paragraph(data["full_p05"], styles['Normal']))
-    doc.build(elements)
-    buffer.seek(0)
-    st.download_button("Download P05 Industry Context Report PDF", buffer, "P05_Industry_Context_Report.pdf", "application/pdf")
 
-st.caption("Dashboard matches n8n 18032026.json workflow + MASTER Excel prompts • All layers visualized")
+st.caption("Dashboard matches n8n workflow")
