@@ -61,8 +61,6 @@ with st.sidebar:
             if r.status_code in (200, 202):
                 st.success(f"✅ Workflow triggered • HTTP {r.status_code}")
                 st.session_state.last_trigger = datetime.now().strftime("%H:%M:%S JST")
-                
-                # Initialize HITL scores for each major section
                 st.session_state.hitl_scores = {
                     "Industry Research": "PASS",
                     "Structural Analysis": "PASS",
@@ -73,7 +71,7 @@ with st.sidebar:
         except Exception as e:
             st.error(f"Error: {e}")
 
-# ====================== MOCK DATA (unchanged) ======================
+# ====================== MOCK DATA ======================
 data = {
     "layer1": {"market_2024": 30.5, "cagr_hist": 6.8, "cagr_proj": 8.2, "market_2030": 45.2},
     "p01_table": pd.DataFrame({"Region": ["North America","Europe","Asia-Pacific","Rest of World"],
@@ -94,16 +92,16 @@ data = {
 The collectible toy market is on an upward trajectory..."""
 }
 
-# ====================== TABS (removed All Charts & Tables) ======================
+# ====================== TABS ======================
 tab1, tab2, tab3, tab5, tab6 = st.tabs([
-    "Industry Research",          # ← renamed
+    "Industry Research",
     "Structural Analysis",
     "Strategy Outputs",
     "CEO Questionnaire Summary",
     "HITL Checkpoints"
 ])
 
-# ====================== TAB 1: INDUSTRY RESEARCH (was Industry Context) ======================
+# ====================== TAB 1: INDUSTRY RESEARCH ======================
 with tab1:
     st.subheader("P01 Market Size & Growth")
     fig_p01 = px.pie(data["p01_table"], names="Region", values="Revenue (In US$ Billion)", title="Regional Market Share")
@@ -142,8 +140,10 @@ with tab1:
     fig_p04 = px.scatter(trends, x="Trend", y="Impact", size="Impact", color="Impact", title="Trend vs Impact")
     st.plotly_chart(fig_p04, use_container_width=True)
 
-    st.subheader("P05 Industry Context Report")
-    st.markdown(data["full_p05"], unsafe_allow_html=True)
+    st.subheader("P05 Research Highlights")
+    # Only show the highlights part (before # Detailed Industry Report)
+    highlights = data["full_p05"].split("# Detailed Industry Report")[0].strip()
+    st.markdown(highlights, unsafe_allow_html=True)
 
 # ====================== TAB 2: STRUCTURAL ANALYSIS ======================
 with tab2:
@@ -171,8 +171,7 @@ with tab2:
         use_container_width=True
     )
 
-    st.subheader("Structural Analysis Report")
-    st.markdown(data["full_p05"].split("# Detailed Industry Report")[1] if "#" in data["full_p05"] else data["full_p05"], unsafe_allow_html=True)
+    # Removed detailed report – no longer shown
 
 # ====================== TAB 3: STRATEGY OUTPUTS ======================
 with tab3:
@@ -186,10 +185,9 @@ with tab3:
     st.subheader("P12 Strategy Statement")
     st.markdown(f"> **{data['p12_statement']}**")
 
-    st.subheader("Strategy Outputs Report")
-    st.markdown(data["full_p05"].split("# Detailed Industry Report")[1] if "#" in data["full_p05"] else data["full_p05"], unsafe_allow_html=True)
+    # Removed detailed report – no longer shown
 
-# ====================== TAB 4 → now TAB 5: CEO QUESTIONNAIRE SUMMARY ======================
+# ====================== TAB 5: CEO QUESTIONNAIRE SUMMARY ======================
 with tab5:
     st.subheader("CEO Questionnaire Summary")
     answers = {
@@ -215,24 +213,21 @@ with tab5:
     - Recommended: Prioritise P11 Option 1 (DTC-Led Growth) to close the only High gap and capture P07 value.
     """)
 
-# ====================== TAB 5 → now TAB 6: HITL CHECKPOINTS ======================
+# ====================== TAB 6: HITL CHECKPOINTS ======================
 with tab6:
     st.subheader("HITL Checkpoints (Human-in-the-Loop Review)")
-    
+
     if "hitl_scores" in st.session_state:
         scores = st.session_state.hitl_scores
-        
         col1, col2, col3 = st.columns(3)
         with col1:
             score = scores.get("Industry Research", "PENDING")
             color = "🟢 PASS" if score == "PASS" else "🔴 FAIL" if score == "FAIL" else "⚪ PENDING"
             st.metric("Industry Research", color)
-        
         with col2:
             score = scores.get("Structural Analysis", "PENDING")
             color = "🟢 PASS" if score == "PASS" else "🔴 FAIL" if score == "FAIL" else "⚪ PENDING"
             st.metric("Structural Analysis", color)
-        
         with col3:
             score = scores.get("Strategy Outputs", "PENDING")
             color = "🟢 PASS" if score == "PASS" else "🔴 FAIL" if score == "FAIL" else "⚪ PENDING"
@@ -247,7 +242,7 @@ with tab6:
         elements = []
         elements.append(Paragraph("Full Strategy Report", styles['Title']))
         elements.append(Spacer(1, 12))
-        elements.append(Paragraph(data["full_p05"], styles['Normal']))
+        elements.append(Paragraph(data["full_p05"], styles['Normal']))  # still includes detailed part in PDF
         doc.build(elements)
         buffer.seek(0)
         st.download_button(
